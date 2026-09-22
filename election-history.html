@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Election History - Electo</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        /* ================= HEADER ================= */
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 20px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        header span {
+            font-size: 14px;
+            color: #d1d5db;
+        }
+
+        /* ================= CONTAINER ================= */
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        h2 {
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            margin-top: 35px;
+            margin-bottom: 15px;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow-x: auto;
+
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #374151;
+
+            text-align: left;
+            padding: 15px;
+
+            font-size: 13px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .election-name {
+            font-weight: bold;
+            color: #111827;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-block;
+
+            padding: 6px 12px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .upcoming {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .completed {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        /* ================= BUTTON ================= */
+
+        .view-btn {
+            background: #2563eb;
+            color: white;
+
+            border: none;
+
+            padding: 8px 14px;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+        .view-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .dashboard-btn {
+            background: #111827;
+            color: white;
+
+            border: none;
+
+            padding: 11px 18px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+            margin-top: 30px;
+        }
+
+        .dashboard-btn:hover {
+            background: #000;
+        }
+
+        /* ================= EMPTY ================= */
+
+        .empty {
+            background: white;
+
+            padding: 30px;
+
+            text-align: center;
+
+            border-radius: 12px;
+
+            color: #666;
+
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ================= MODAL ================= */
+
+        .modal {
+            display: none;
+
+            position: fixed;
+
+            z-index: 1000;
+
+            left: 0;
+            top: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background: rgba(0, 0, 0, 0.55);
+
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+
+            width: 100%;
+            max-width: 700px;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            border-radius: 14px;
+
+            padding: 25px;
+
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+
+            animation: popup 0.2s ease;
+        }
+
+        @keyframes popup {
+
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+        }
+
+        .modal-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+
+            font-size: 22px;
+
+            color: #111827;
+        }
+
+        .close-btn {
+            background: transparent;
+
+            border: none;
+
+            font-size: 25px;
+
+            cursor: pointer;
+
+            color: #666;
+        }
+
+        .close-btn:hover {
+            color: #111827;
+        }
+
+        .modal-details {
+            display: grid;
+
+            grid-template-columns: repeat(2, 1fr);
+
+            gap: 15px;
+        }
+
+        .modal-box {
+            background: #f8fafc;
+
+            padding: 14px;
+
+            border-radius: 8px;
+        }
+
+        .modal-box strong {
+            display: block;
+
+            font-size: 12px;
+
+            color: #6b7280;
+
+            margin-bottom: 5px;
+        }
+
+        .modal-box span {
+            font-size: 14px;
+
+            color: #111827;
+        }
+
+        .modal-description {
+            margin-top: 18px;
+
+            background: #f8fafc;
+
+            padding: 15px;
+
+            border-radius: 8px;
+
+            line-height: 1.6;
+        }
+
+        .modal-description strong {
+            display: block;
+
+            margin-bottom: 6px;
+        }
+
+        /* ================= POSITIONS ================= */
+
+        .modal-section {
+            margin-top: 20px;
+        }
+
+        .modal-section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .position-card {
+            background: #f8fafc;
+            border-radius: 9px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .position-name {
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .candidate-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 7px;
+            padding: 9px 11px;
+            margin-top: 7px;
+            font-size: 13px;
+        }
+
+        .candidate-name {
+            font-weight: bold;
+            color: #2563eb;
+        }
+
+        .candidate-email {
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .no-data {
+            color: #777;
+            font-size: 13px;
+        }
+
+        /* ================= MOBILE ================= */
+
+        @media (max-width: 600px) {
+
+            header {
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 8px;
+            }
+
+            .modal-details {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- ================= HEADER ================= -->
+
+<header>
+
+    <h1>
+        Electo - Election Management System
+    </h1>
+
+    <span id="adminEmail"></span>
+
+</header>
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="container">
+
+    <h2>
+        Election History
+    </h2>
+
+    <p class="subtitle">
+        View all elections created through Electo and their current status.
+    </p>
+
+
+    <!-- ================= CURRENT ================= -->
+
+    <h2 class="section-title">
+        Current Elections
+    </h2>
+
+    <div id="currentElections"></div>
+
+
+    <!-- ================= HISTORY ================= -->
+
+    <h2 class="section-title">
+        Completed Elections
+    </h2>
+
+    <div id="pastElections"></div>
+
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <button
+        class="dashboard-btn"
+        onclick="goToDashboard()">
+
+        Back to Dashboard
+
+    </button>
+
+</div>
+
+
+<!-- ================= MODAL ================= -->
+
+<div
+    id="detailsModal"
+    class="modal"
+    onclick="closeModalOutside(event)"
+>
+
+    <div
+        class="modal-content"
+        onclick="event.stopPropagation()"
+    >
+
+        <div class="modal-header">
+
+            <h3 id="modalElectionName">
+                Election Details
+            </h3>
+
+            <button
+                class="close-btn"
+                onclick="closeModal()"
+            >
+
+                &times;
+
+            </button>
+
+        </div>
+
+
+        <!-- ================= BASIC DETAILS ================= -->
+
+        <div class="modal-details">
+
+            <div class="modal-box">
+
+                <strong>
+                    Status
+                </strong>
+
+                <span id="modalStatus">
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="modal-box">
+
+                <strong>
+                    Election ID
+                </strong>
+
+                <span id="modalElectionId">
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="modal-box">
+
+                <strong>
+                    Created Date
+                </strong>
+
+                <span id="modalCreatedDate">
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="modal-box">
+
+                <strong>
+                    Start Date
+                </strong>
+
+                <span id="modalStartDate">
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="modal-box">
+
+                <strong>
+                    End Date
+                </strong>
+
+                <span id="modalEndDate">
+                    -
+                </span>
+
+            </div>
+
+
+            <div class="modal-box">
+
+                <strong>
+                    Maximum Positions
+                </strong>
+
+                <span id="modalPositions">
+                    -
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= DESCRIPTION ================= -->
+
+        <div class="modal-description">
+
+            <strong>
+                Description
+            </strong>
+
+            <span id="modalDescription">
+                -
+            </span>
+
+        </div>
+
+
+        <!-- ================= POSITIONS ================= -->
+
+        <div class="modal-section">
+
+            <div class="modal-section-title">
+                Positions & Candidates
+            </div>
+
+            <div id="positionsContainer">
+
+                <div class="no-data">
+                    Loading positions...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+// =====================================================
+// BACKEND
+// =====================================================
+
+const API_BASE =
+    "http://localhost:8080/api";
+
+
+// =====================================================
+// ADMIN LOGIN CHECK
+// =====================================================
+
+const userEmail =
+    localStorage.getItem("userEmail");
+
+const userRole =
+    localStorage.getItem("userRole");
+
+
+if (!userEmail || userRole !== "ADMIN") {
+
+    alert("Admin access required.");
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+document.getElementById("adminEmail").textContent =
+    "Admin: " + userEmail;
+
+
+// =====================================================
+// LOAD ELECTIONS
+// =====================================================
+
+async function loadElections() {
+
+    try {
+
+        /*
+         * Load elections directly from backend.
+         * This makes Election History use the
+         * actual database records.
+         */
+
+        const response =
+            await fetch(
+                `${API_BASE}/elections`
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load elections."
+            );
+
+        }
+
+
+        const elections =
+            await response.json();
+
+
+        renderElections(elections);
+
+
+    } catch (error) {
+
+        console.error(
+            "Election loading error:",
+            error
+        );
+
+
+        /*
+         * Fallback to localStorage so the page
+         * does not become empty if backend fails.
+         */
+
+        let elections =
+            JSON.parse(
+                localStorage.getItem("elections")
+            ) || [];
+
+
+        const oldElection =
+            JSON.parse(
+                localStorage.getItem("election")
+            );
+
+
+        if (
+            elections.length === 0 &&
+            oldElection
+        ) {
+
+            elections = [oldElection];
+
+        }
+
+
+        renderElections(elections);
+
+    }
+
+}
+
+
+// =====================================================
+// RENDER ELECTIONS
+// =====================================================
+
+function renderElections(elections) {
+
+    const currentContainer =
+        document.getElementById(
+            "currentElections"
+        );
+
+
+    const historyContainer =
+        document.getElementById(
+            "pastElections"
+        );
+
+
+    currentContainer.innerHTML = "";
+
+    historyContainer.innerHTML = "";
+
+
+    if (
+        !elections ||
+        elections.length === 0
+    ) {
+
+        currentContainer.innerHTML = `
+            <div class="empty">
+                No elections have been created yet.
+            </div>
+        `;
+
+        historyContainer.innerHTML = `
+            <div class="empty">
+                No election history available.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    // =================================================
+    // SORT NEWEST FIRST
+    // =================================================
+
+    elections.sort(function(a, b) {
+
+        const dateA =
+            new Date(
+                a.createdDate ||
+                a.startDate ||
+                0
+            );
+
+
+        const dateB =
+            new Date(
+                b.createdDate ||
+                b.startDate ||
+                0
+            );
+
+
+        return dateB - dateA;
+
+    });
+
+
+    let currentElections = [];
+
+    let completedElections = [];
+
+
+    elections.forEach(function(election) {
+
+        const status =
+            getElectionStatus(election);
+
+
+        if (status === "Completed") {
+
+            completedElections.push(
+                election
+            );
+
+        } else {
+
+            currentElections.push(
+                election
+            );
+
+        }
+
+    });
+
+
+    // =================================================
+    // CURRENT ELECTIONS
+    // =================================================
+
+    if (
+        currentElections.length === 0
+    ) {
+
+        currentContainer.innerHTML = `
+            <div class="empty">
+                No current elections.
+            </div>
+        `;
+
+    } else {
+
+        currentContainer.innerHTML =
+            createTable(
+                currentElections
+            );
+
+    }
+
+
+    // =================================================
+    // COMPLETED ELECTIONS
+    // =================================================
+
+    if (
+        completedElections.length === 0
+    ) {
+
+        historyContainer.innerHTML = `
+            <div class="empty">
+                No completed elections yet.
+            </div>
+        `;
+
+    } else {
+
+        historyContainer.innerHTML =
+            createTable(
+                completedElections
+            );
+
+    }
+
+}
+
+
+// =====================================================
+// CREATE TABLE
+// =====================================================
+
+function createTable(elections) {
+
+    let html = `
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Election
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Start Date
+                        </th>
+
+                        <th>
+                            End Date
+                        </th>
+
+                        <th>
+                            Positions
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+
+    elections.forEach(function(election) {
+
+        const status =
+            getElectionStatus(
+                election
+            );
+
+
+        let statusClass =
+            "completed";
+
+
+        if (
+            status === "Upcoming"
+        ) {
+
+            statusClass =
+                "upcoming";
+
+        }
+
+
+        if (
+            status === "Active"
+        ) {
+
+            statusClass =
+                "active";
+
+        }
+
+
+        /*
+         * JSON is encoded safely before being
+         * passed to the button.
+         */
+
+        const electionData =
+            encodeURIComponent(
+                JSON.stringify(election)
+            );
+
+
+        html += `
+
+            <tr>
+
+                <td>
+
+                    <div class="election-name">
+
+                        ${escapeHTML(
+                            election.name ||
+                            "Unnamed Election"
+                        )}
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <span class="status ${statusClass}">
+
+                        ${status}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    ${formatDate(
+                        election.startDate ||
+                        election.startTime
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${formatDate(
+                        election.endDate ||
+                        election.endTime
+                    )}
+
+                </td>
+
+
+                <td>
+
+                    ${election.maxPositions || "-"}
+
+                </td>
+
+
+                <td>
+
+                    <button
+                        class="view-btn"
+                        onclick="viewElectionEncoded('${electionData}')"
+                    >
+
+                        View Details
+
+                    </button>
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+
+    return html;
+
+}
+
+
+// =====================================================
+// VIEW ELECTION
+// =====================================================
+
+function viewElectionEncoded(encodedElection) {
+
+    try {
+
+        const election =
+            JSON.parse(
+                decodeURIComponent(
+                    encodedElection
+                )
+            );
+
+
+        viewElection(election);
+
+
+    } catch (error) {
+
+        console.error(
+            "Election details error:",
+            error
+        );
+
+
+        alert(
+            "Unable to open election details."
+        );
+
+    }
+
+}
+
+
+// =====================================================
+// VIEW ELECTION DETAILS
+// =====================================================
+
+async function viewElection(election) {
+
+    if (!election) {
+
+        alert(
+            "Election not found."
+        );
+
+        return;
+
+    }
+
+
+    // Save selected election
+
+    localStorage.setItem(
+        "selectedElection",
+        JSON.stringify(election)
+    );
+
+
+    const status =
+        getElectionStatus(
+            election
+        );
+
+
+    document.getElementById(
+        "modalElectionName"
+    ).textContent =
+        election.name ||
+        "Unnamed Election";
+
+
+    document.getElementById(
+        "modalStatus"
+    ).textContent =
+        status;
+
+
+    document.getElementById(
+        "modalElectionId"
+    ).textContent =
+        election.id ||
+        "-";
+
+
+    document.getElementById(
+        "modalCreatedDate"
+    ).textContent =
+        formatDate(
+            election.createdDate ||
+            election.startDate ||
+            election.startTime
+        );
+
+
+    document.getElementById(
+        "modalStartDate"
+    ).textContent =
+        formatDate(
+            election.startDate ||
+            election.startTime
+        );
+
+
+    document.getElementById(
+        "modalEndDate"
+    ).textContent =
+        formatDate(
+            election.endDate ||
+            election.endTime
+        );
+
+
+    document.getElementById(
+        "modalPositions"
+    ).textContent =
+        election.maxPositions ||
+        "-";
+
+
+    document.getElementById(
+        "modalDescription"
+    ).textContent =
+        election.description ||
+        "No description provided.";
+
+
+    // Show loading state
+
+    document.getElementById(
+        "positionsContainer"
+    ).innerHTML = `
+
+        <div class="no-data">
+            Loading positions and candidates...
+        </div>
+
+    `;
+
+
+    // Open modal immediately
+
+    document.getElementById(
+        "detailsModal"
+    ).style.display =
+        "flex";
+
+
+    // Load positions + candidates
+
+    await loadPositionsAndCandidates(
+        election.id
+    );
+
+}
+
+
+// =====================================================
+// LOAD POSITIONS AND CANDIDATES
+// =====================================================
+
+async function loadPositionsAndCandidates(
+    electionId
+) {
+
+    const container =
+        document.getElementById(
+            "positionsContainer"
+        );
+
+
+    if (!electionId) {
+
+        container.innerHTML = `
+
+            <div class="no-data">
+                Election ID is not available.
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    try {
+
+        // Get positions
+
+        const positionsResponse =
+            await fetch(
+                `${API_BASE}/positions/election/${electionId}`
+            );
+
+
+        if (!positionsResponse.ok) {
+
+            throw new Error(
+                "Unable to load positions."
+            );
+
+        }
+
+
+        const positions =
+            await positionsResponse.json();
+
+
+        // Get candidates
+
+        const candidatesResponse =
+            await fetch(
+                `${API_BASE}/candidates/election/${electionId}`
+            );
+
+
+        if (!candidatesResponse.ok) {
+
+            throw new Error(
+                "Unable to load candidates."
+            );
+
+        }
+
+
+        const candidates =
+            await candidatesResponse.json();
+
+
+        // No positions
+
+        if (
+            !positions ||
+            positions.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="no-data">
+                    No positions have been added to this election yet.
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let html = "";
+
+
+        positions.forEach(function(position) {
+
+            const positionCandidates =
+                candidates.filter(
+                    function(candidate) {
+
+                        return String(
+                            candidate.positionId
+                        ) === String(
+                            position.id
+                        );
+
+                    }
+                );
+
+
+            html += `
+
+                <div class="position-card">
+
+                    <div class="position-name">
+
+                        ${escapeHTML(
+                            position.name ||
+                            "Unnamed Position"
+                        )}
+
+                    </div>
+
+            `;
+
+
+            if (
+                positionCandidates.length === 0
+            ) {
+
+                html += `
+
+                    <div class="no-data">
+                        No candidates added.
+                    </div>
+
+                `;
+
+            } else {
+
+                positionCandidates.forEach(
+                    function(candidate) {
+
+                        html += `
+
+                            <div class="candidate-item">
+
+                                <div class="candidate-name">
+
+                                    ${escapeHTML(
+                                        candidate.name ||
+                                        "Unnamed Candidate"
+                                    )}
+
+                                </div>
+
+                                ${
+                                    candidate.email
+                                    ?
+                                    `
+                                    <div class="candidate-email">
+                                        ${escapeHTML(
+                                            candidate.email
+                                        )}
+                                    </div>
+                                    `
+                                    :
+                                    ""
+                                }
+
+                            </div>
+
+                        `;
+
+                    }
+                );
+
+            }
+
+
+            html += `
+
+                </div>
+
+            `;
+
+        });
+
+
+        container.innerHTML =
+            html;
+
+
+    } catch (error) {
+
+        console.error(
+            "Position/Candidate loading error:",
+            error
+        );
+
+
+        container.innerHTML = `
+
+            <div class="no-data">
+
+                Unable to load positions and candidates.
+                Please make sure the Electo backend is running.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// =====================================================
+// ELECTION STATUS
+// =====================================================
+
+function getElectionStatus(election) {
+
+    const now =
+        new Date();
+
+
+    const startValue =
+        election.startDate ||
+        election.startTime;
+
+
+    const endValue =
+        election.endDate ||
+        election.endTime;
+
+
+    const start =
+        new Date(
+            startValue
+        );
+
+
+    const end =
+        new Date(
+            endValue
+        );
+
+
+    if (
+        isNaN(start.getTime()) ||
+        isNaN(end.getTime())
+    ) {
+
+        return "Upcoming";
+
+    }
+
+
+    if (now < start) {
+
+        return "Upcoming";
+
+    }
+
+
+    if (now > end) {
+
+        return "Completed";
+
+    }
+
+
+    return "Active";
+
+}
+
+
+// =====================================================
+// CLOSE MODAL
+// =====================================================
+
+function closeModal() {
+
+    document.getElementById(
+        "detailsModal"
+    ).style.display =
+        "none";
+
+}
+
+
+function closeModalOutside(event) {
+
+    if (
+        event.target ===
+        document.getElementById(
+            "detailsModal"
+        )
+    ) {
+
+        closeModal();
+
+    }
+
+}
+
+
+// =====================================================
+// DATE FORMAT
+// =====================================================
+
+function formatDate(dateValue) {
+
+    if (!dateValue) {
+
+        return "-";
+
+    }
+
+
+    const date =
+        new Date(
+            dateValue
+        );
+
+
+    if (
+        isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return dateValue;
+
+    }
+
+
+    return date.toLocaleDateString(
+        "en-IN",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+
+}
+
+
+// =====================================================
+// SECURITY
+// =====================================================
+
+function escapeHTML(value) {
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+// =====================================================
+// BACK TO DASHBOARD
+// =====================================================
+
+function goToDashboard() {
+
+    window.location.href =
+        "admin-dashboard.html";
+
+}
+
+
+// =====================================================
+// START
+// =====================================================
+
+loadElections();
+
+</script>
+
+</body>
+
+</html>

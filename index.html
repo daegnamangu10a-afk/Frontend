@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ELECTO - Secure Election Management</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- Background Decoration -->
+    <div class="circle circle-one"></div>
+    <div class="circle circle-two"></div>
+
+    <main class="login-container">
+
+        <!-- Left Branding Section -->
+        <section class="brand-section">
+
+            <div class="brand-logo">
+                <div class="logo-icon">E</div>
+                <span>ELECTO</span>
+            </div>
+
+            <div class="brand-content">
+                <span class="small-label">ELECTION MANAGEMENT SYSTEM</span>
+
+                <h1>
+                    Your Vote.<br>
+                    <span>Your Voice.</span>
+                </h1>
+
+                <p>
+                    A secure and streamlined platform designed
+                    to make every election simple, transparent,
+                    and accessible.
+                </p>
+            </div>
+
+            <div class="brand-footer">
+                <span>●</span>
+                Secure Digital Voting
+            </div>
+
+        </section>
+
+
+        <!-- Login Section -->
+        <section class="login-section">
+
+            <div class="login-card">
+
+                <div class="card-icon">
+                    🔐
+                </div>
+
+                <div class="welcome-text">
+                    <span>WELCOME TO</span>
+                    <h2>ELECTO</h2>
+                </div>
+
+                <p class="login-description">
+                    Enter your registered email address to securely
+                    continue.
+                </p>
+
+                <form onsubmit="event.preventDefault(); sendOTP();">
+
+                    <label for="email">
+                        Registered Email Address
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">✉</span>
+
+                        <input
+                            type="email"
+                            id="email"
+                            placeholder="Enter your email address"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                    <button type="submit" class="continue-btn">
+
+                        <span>Continue Securely</span>
+
+                        <span class="arrow">→</span>
+
+                    </button>
+
+                </form>
+
+                <div id="message"></div>
+
+                <div class="security-note">
+
+                    <span class="shield">🛡</span>
+
+                    <div>
+                        <strong>Secure Authentication</strong>
+                        <p>
+                            Your identity will be verified through
+                            a one-time password (OTP).
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="copyright">
+                © 2026 ELECTO · Secure Election Management System
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

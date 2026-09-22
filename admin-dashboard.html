@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Electo - Admin Dashboard</title>
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #080d18;
+            color: #ffffff;
+        }
+
+        /* =========================
+           SIDEBAR
+        ========================= */
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 255px;
+            height: 100vh;
+
+            background: #101827;
+
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+
+            padding: 28px 18px;
+
+            display: flex;
+            flex-direction: column;
+
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            color: #f5c542;
+
+            padding: 0 14px 8px;
+        }
+
+        .logo-subtitle {
+            color: #8e99aa;
+            font-size: 12px;
+            padding: 0 14px 28px;
+            letter-spacing: 1px;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            color: #687386;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+
+            padding: 0 14px 10px;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            width: 100%;
+            border: none;
+            outline: none;
+
+            background: transparent;
+            color: #cbd2dd;
+
+            padding: 13px 14px;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            font-size: 14px;
+            text-align: left;
+
+            cursor: pointer;
+
+            transition: all 0.25s ease;
+        }
+
+        .nav-item:hover {
+            background: rgba(245, 197, 66, 0.10);
+            color: #f5c542;
+            transform: translateX(3px);
+        }
+
+        .nav-item.active {
+            background: rgba(245, 197, 66, 0.13);
+            color: #f5c542;
+        }
+
+        .nav-icon {
+            width: 25px;
+            min-width: 25px;
+
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 17px;
+        }
+
+        /* =========================
+           SIDEBAR BOTTOM
+        ========================= */
+
+        .sidebar-bottom {
+            margin-top: auto;
+
+            padding: 22px 0 5px;
+
+            border-top: 1px solid rgba(255, 255, 255, 0.09);
+        }
+
+        .export-btn {
+            margin-bottom: 14px;
+        }
+
+        .logout-btn {
+            color: #ff8585;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 80, 80, 0.10);
+            color: #ff5f5f;
+            transform: translateX(3px);
+        }
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+
+        .main {
+            margin-left: 255px;
+            min-height: 100vh;
+
+            padding: 38px 45px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 35px;
+        }
+
+        .page-heading h1 {
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .page-heading p {
+            color: #8f9bad;
+            font-size: 14px;
+        }
+
+        .admin-badge {
+            padding: 9px 17px;
+
+            border: 1px solid rgba(245, 197, 66, 0.35);
+            background: rgba(245, 197, 66, 0.08);
+
+            border-radius: 30px;
+
+            color: #f5c542;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           WELCOME CARD
+        ========================= */
+
+        .welcome-card {
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(245, 197, 66, 0.12),
+                    rgba(16, 24, 39, 0.95)
+                );
+
+            border: 1px solid rgba(245, 197, 66, 0.16);
+
+            border-radius: 18px;
+
+            padding: 30px;
+
+            margin-bottom: 32px;
+
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::after {
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            right: -50px;
+            top: -70px;
+
+            border-radius: 50%;
+
+            background: rgba(245, 197, 66, 0.07);
+        }
+
+        .welcome-card h2 {
+            font-size: 23px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-card p {
+            color: #9ba5b5;
+            font-size: 14px;
+        }
+
+        /* =========================
+           SECTION TITLE
+        ========================= */
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 18px;
+        }
+
+        .section-title h2 {
+            font-size: 19px;
+        }
+
+        .section-title span {
+            color: #697587;
+            font-size: 12px;
+        }
+
+        /* =========================
+           DASHBOARD CARDS
+        ========================= */
+
+        .cards {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(230px, 1fr));
+
+            gap: 18px;
+        }
+
+        .card {
+            background: #111a2a;
+
+            border: 1px solid rgba(255, 255, 255, 0.07);
+
+            border-radius: 15px;
+
+            padding: 23px;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease,
+                background 0.25s ease;
+
+            min-height: 150px;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+
+            border-color: rgba(245, 197, 66, 0.35);
+
+            background: #142033;
+        }
+
+        .card-icon {
+            width: 43px;
+            height: 43px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            border-radius: 11px;
+
+            background: rgba(245, 197, 66, 0.10);
+
+            font-size: 20px;
+
+            margin-bottom: 18px;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            margin-bottom: 7px;
+        }
+
+        .card p {
+            color: #7f8b9d;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        #adminMessage {
+            margin-top: 25px;
+
+            padding: 12px 16px;
+
+            color: #f5c542;
+
+            font-size: 13px;
+
+            text-align: center;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            .sidebar {
+                position: relative;
+
+                width: 100%;
+                height: auto;
+
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .nav-menu {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sidebar-bottom {
+                margin-top: 20px;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 28px 20px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .nav-menu {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                flex-direction: column;
+            }
+
+            .page-heading h1 {
+                font-size: 25px;
+            }
+
+            .welcome-card {
+                padding: 23px;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         SIDEBAR
+    ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            ELECTO
+        </div>
+
+        <div class="logo-subtitle">
+            ELECTION MANAGEMENT
+        </div>
+
+
+        <div class="nav-title">
+            Management
+        </div>
+
+
+        <div class="nav-menu">
+
+            <button class="nav-item" onclick="createElection()">
+                <span class="nav-icon">🗳️</span>
+                <span>Manage Elections</span>
+            </button>
+
+
+            <button class="nav-item" onclick="votingCriteria()">
+                <span class="nav-icon">⚙️</span>
+                <span>Voting Criteria</span>
+            </button>
+
+
+            <button class="nav-item" onclick="managePositions()">
+                <span class="nav-icon">📌</span>
+                <span>Manage Positions</span>
+            </button>
+
+
+            <button class="nav-item" onclick="manageCandidates()">
+                <span class="nav-icon">👤</span>
+                <span>Manage Candidates</span>
+            </button>
+
+
+            <button class="nav-item" onclick="manageVoters()">
+                <span class="nav-icon">👥</span>
+                <span>Manage Voters</span>
+            </button>
+
+
+            <button class="nav-item" onclick="viewResults()">
+                <span class="nav-icon">📊</span>
+                <span>View Results</span>
+            </button>
+            
+            <button class="nav-item" onclick="viewElectionHistory()">
+                <span class="nav-icon">📜</span>
+                <span>Election History</span>
+            </button>
+        </div>
+
+
+        <!-- =========================
+             BOTTOM ACTIONS
+        ========================= -->
+
+        <div class="sidebar-bottom">
+
+            <button class="nav-item export-btn" onclick="exportVoters()">
+                <span class="nav-icon">📥</span>
+                <span>Export Voters</span>
+            </button>
+
+
+            <button class="nav-item logout-btn" onclick="logout()">
+                <span class="nav-icon">🚪</span>
+                <span>Logout</span>
+            </button>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =========================
+         MAIN
+    ========================= -->
+
+    <main class="main">
+
+
+        <div class="topbar">
+
+            <div class="page-heading">
+
+                <h1>Admin Dashboard</h1>
+
+                <p>
+                    Manage elections, voters, candidates and results.
+                </p>
+
+            </div>
+
+
+            <div class="admin-badge">
+                🔐 ADMIN
+            </div>
+
+        </div>
+
+
+
+        <!-- =========================
+             WELCOME
+        ========================= -->
+
+        <div class="welcome-card">
+
+            <h2>
+                Welcome, Admin 👋
+            </h2>
+
+            <p>
+                Manage your election system securely from one place.
+            </p>
+
+        </div>
+
+
+
+        <!-- =========================
+             MANAGEMENT
+        ========================= -->
+
+        <div class="section-title">
+
+            <h2>
+                Election Management
+            </h2>
+
+            <span>
+                Select an option to continue
+            </span>
+
+        </div>
+
+
+
+        <div class="cards">
+
+
+            <div class="card" onclick="createElection()">
+
+                <div class="card-icon">
+                    🗳️
+                </div>
+
+                <h3>
+                    Manage Elections
+                </h3>
+
+                <p>
+                    Create and manage your elections, dates and status.
+                </p>
+
+            </div>
+
+
+
+            <div class="card" onclick="votingCriteria()">
+
+                <div class="card-icon">
+                    ⚙️
+                </div>
+
+                <h3>
+                    Voting Criteria
+                </h3>
+
+                <p>
+                    Configure eligibility and voting requirements.
+                </p>
+
+            </div>
+
+
+
+            <div class="card" onclick="managePositions()">
+
+                <div class="card-icon">
+                    📌
+                </div>
+
+                <h3>
+                    Manage Positions
+                </h3>
+
+                <p>
+                    Add and manage positions available in an election.
+                </p>
+
+            </div>
+
+
+
+            <div class="card" onclick="manageCandidates()">
+
+                <div class="card-icon">
+                    👤
+                </div>
+
+                <h3>
+                    Manage Candidates
+                </h3>
+
+                <p>
+                    Manage candidate information and nominations.
+                </p>
+
+            </div>
+
+
+
+            <div class="card" onclick="manageVoters()">
+
+                <div class="card-icon">
+                    👥
+                </div>
+
+                <h3>
+                    Manage Voters
+                </h3>
+
+                <p>
+                    Add, view and manage registered voters.
+                </p>
+
+            </div>
+
+
+
+            <div class="card" onclick="viewResults()">
+
+                <div class="card-icon">
+                    📊
+                </div>
+
+                <h3>
+                    View Results
+                </h3>
+
+                <p>
+                    View election results after voting is completed.
+                </p>
+
+            </div>
+
+            <div class="card" onclick="viewElectionHistory()">
+
+                    <div class="card-icon">📜</div>
+
+                    <h3>
+                        Election History
+                    </h3>
+
+                    <p>
+                        View your previous election participation.
+                    </p>
+
+                </div>
+
+
+        </div>
+
+
+        <div id="adminMessage"></div>
+
+
+    </main>
+
+
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        /* =========================
+           ADMIN ACCESS PROTECTION
+        ========================= */
+
+        const email =
+            localStorage.getItem("userEmail");
+
+        const userRole =
+            localStorage.getItem("userRole");
+
+
+        if (!email || userRole !== "ADMIN") {
+
+            alert("Admin access required.");
+
+            window.location.href =
+                "index.html";
+        }
+
+
+
+        /* =========================
+           MANAGE ELECTIONS
+        ========================= */
+
+        function createElection() {
+            window.location.href = "manage-elections.html";
+        }
+
+
+
+        /* =========================
+           VOTING CRITERIA
+        ========================= */
+
+        function votingCriteria() {
+            window.location.href = "voting-criteria.html";
+        }
+
+
+
+        /* =========================
+           MANAGE POSITIONS
+        ========================= */
+
+        function managePositions() {
+            window.location.href = "manage-positions.html";
+        }
+
+
+
+        /* =========================
+           MANAGE CANDIDATES
+        ========================= */
+
+        function manageCandidates() {
+            window.location.href =
+                "manage-candidates.html";
+        }
+
+
+
+        /* =========================
+           MANAGE VOTERS
+        ========================= */
+
+        function manageVoters() {
+            window.location.href =
+                "manage-voters.html";
+        }
+
+
+
+        /* =========================
+           VIEW RESULTS
+        ========================= */
+
+        function viewResults() {
+            window.location.href =
+                "view-results.html";
+        }
+
+        /* =========================
+           VIEW ELECTION HISTORY
+        ========================= */
+
+        function viewElectionHistory() {
+            window.location.href =
+                "election-history.html";
+        }
+
+        /* =========================
+           EXPORT VOTERS
+        ========================= */
+
+        function exportVoters() {
+
+            document.getElementById("adminMessage").innerText =
+                "Preparing voter Excel file...";
+
+
+            window.location.href =
+                "http://localhost:8080/api/voters/export";
+        }
+
+
+
+        /* =========================
+           LOGOUT
+        ========================= */
+
+        function logout() {
+
+            localStorage.removeItem("userEmail");
+
+            localStorage.removeItem("userRole");
+
+
+            window.location.href =
+                "index.html";
+        }
+
+    </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>View Elections - Electo</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 26px;
+        }
+
+        .header-right {
+            font-size: 14px;
+            text-align: right;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
+        .page-title h2 {
+            color: #111827;
+            margin-bottom: 7px;
+        }
+
+        .page-title p {
+            color: #666;
+        }
+
+        .election-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        .election-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .election-header h3 {
+            color: #111827;
+            font-size: 23px;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 13px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .upcoming {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .ended {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .unknown {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .election-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .info-box strong {
+            display: block;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .info-box span {
+            color: #555;
+            word-break: break-word;
+        }
+
+        .positions-title {
+            color: #111827;
+            font-size: 19px;
+            margin: 20px 0 15px;
+        }
+
+        .position-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        .position-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 15px;
+        }
+
+        .candidate-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .candidate-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 9px;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .candidate-photo {
+            width: 95px;
+            height: 95px;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            flex-shrink: 0;
+        }
+
+        .candidate-info h4 {
+            color: #111827;
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+
+        .candidate-email {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .biography {
+            color: #555;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .bio-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        button,
+        .vote-btn {
+            border: none;
+            padding: 12px 22px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .vote-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .vote-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .disabled-btn {
+            background: #9ca3af;
+            color: white;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .back-btn:hover {
+            background: #4b5563;
+        }
+
+        .no-data {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            color: #777;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 18px;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 850px) {
+            .candidate-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .header-right {
+                text-align: left;
+            }
+
+            .election-header {
+                flex-direction: column;
+            }
+
+            .election-info {
+                grid-template-columns: 1fr;
+            }
+
+            .candidate-card {
+                flex-direction: column;
+            }
+
+            .candidate-photo {
+                width: 130px;
+                height: 130px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .vote-btn,
+            .back-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Electo</h1>
+
+        <div class="header-right">
+            Voter Panel<br>
+            <span id="userEmail">Loading...</span>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="page-title">
+            <h2>View Elections</h2>
+            <p>
+                View available elections, positions and candidates.
+            </p>
+        </div>
+
+        <div id="electionsContainer">
+            <div class="loading">
+                Loading elections...
+            </div>
+        </div>
+
+        <button class="back-btn" onclick="goBack()">
+            ← Back to Dashboard
+        </button>
+
+    </div>
+
+    <script>
+
+        const API_BASE = "http://localhost:8080/api";
+
+        const userEmail = localStorage.getItem("userEmail");
+        const userRole = localStorage.getItem("userRole");
+
+        if (!userEmail || !userRole) {
+            alert("Please login first.");
+            window.location.href = "index.html";
+        }
+
+        if (userRole !== "VOTER") {
+            alert("Access denied. Voter only.");
+            window.location.href = "dashboard.html";
+        }
+
+        document.getElementById("userEmail").textContent = userEmail;
+
+
+        function escapeHTML(value) {
+            if (value === null || value === undefined) {
+                return "";
+            }
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        function getDateValue(election, firstKey, secondKey) {
+            return election[firstKey] || election[secondKey] || "";
+        }
+
+
+        function formatDate(value) {
+            if (!value) {
+                return "Not provided";
+            }
+
+            const date = new Date(value);
+
+            if (isNaN(date.getTime())) {
+                return value;
+            }
+
+            return date.toLocaleString("en-IN", {
+                dateStyle: "medium",
+                timeStyle: "short"
+            });
+        }
+
+
+        function getElectionStatus(election) {
+
+            const backendStatus =
+                election.status
+                    ? String(election.status).toUpperCase()
+                    : "";
+
+            const startValue =
+                getDateValue(election, "startTime", "startDate");
+
+            const endValue =
+                getDateValue(election, "endTime", "endDate");
+
+            const now = new Date();
+
+            const start = new Date(startValue);
+            const end = new Date(endValue);
+
+            if (backendStatus === "ACTIVE") {
+                return {
+                    text: "Active",
+                    className: "active",
+                    canVote: true
+                };
+            }
+
+            if (
+                backendStatus === "COMPLETED" ||
+                backendStatus === "ENDED" ||
+                backendStatus === "CLOSED"
+            ) {
+                return {
+                    text: "Election Ended",
+                    className: "ended",
+                    canVote: false
+                };
+            }
+
+            if (backendStatus === "UPCOMING") {
+                return {
+                    text: "Upcoming",
+                    className: "upcoming",
+                    canVote: false
+                };
+            }
+
+            if (!isNaN(start.getTime()) && now < start) {
+                return {
+                    text: "Upcoming",
+                    className: "upcoming",
+                    canVote: false
+                };
+            }
+
+            if (!isNaN(end.getTime()) && now > end) {
+                return {
+                    text: "Election Ended",
+                    className: "ended",
+                    canVote: false
+                };
+            }
+
+            if (
+                !isNaN(start.getTime()) &&
+                !isNaN(end.getTime()) &&
+                now >= start &&
+                now <= end
+            ) {
+                return {
+                    text: "Active",
+                    className: "active",
+                    canVote: true
+                };
+            }
+
+            return {
+                text: backendStatus || "Status Unknown",
+                className: "unknown",
+                canVote: false
+            };
+        }
+
+
+        async function loadElections() {
+
+            const container =
+                document.getElementById("electionsContainer");
+
+            try {
+
+                const response =
+                    await fetch(`${API_BASE}/elections`);
+
+                if (!response.ok) {
+                    throw new Error("Unable to load elections.");
+                }
+
+                const elections = await response.json();
+
+                if (!Array.isArray(elections) || elections.length === 0) {
+
+                    container.innerHTML = `
+                        <div class="no-data">
+                            No elections are available currently.
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                container.innerHTML = "";
+
+                for (const election of elections) {
+                    await displayElection(election);
+                }
+
+            } catch (error) {
+
+                console.error("Election loading error:", error);
+
+                container.innerHTML = `
+                    <div class="error">
+                        Unable to connect to the backend.
+                        <br><br>
+                        Please make sure your Spring Boot application
+                        is running on port 8080.
+                    </div>
+                `;
+            }
+        }
+
+
+        async function displayElection(election) {
+
+            const container =
+                document.getElementById("electionsContainer");
+
+            const status =
+                getElectionStatus(election);
+
+            const startDate =
+                getDateValue(election, "startTime", "startDate");
+
+            const endDate =
+                getDateValue(election, "endTime", "endDate");
+
+            const electionId =
+                election.id;
+
+            const card =
+                document.createElement("div");
+
+            card.className = "election-card";
+
+            card.innerHTML = `
+                <div class="election-header">
+
+                    <div>
+                        <h3>
+                            ${escapeHTML(election.name || "Unnamed Election")}
+                        </h3>
+
+                        <p class="description">
+                            ${escapeHTML(
+                                election.description ||
+                                "No description provided."
+                            )}
+                        </p>
+                    </div>
+
+                    <span class="status ${status.className}">
+                        ${escapeHTML(status.text)}
+                    </span>
+
+                </div>
+
+                <div class="election-info">
+
+                    <div class="info-box">
+                        <strong>Election ID</strong>
+                        <span>${escapeHTML(electionId)}</span>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Start Date</strong>
+                        <span>${escapeHTML(formatDate(startDate))}</span>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>End Date</strong>
+                        <span>${escapeHTML(formatDate(endDate))}</span>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Maximum Positions</strong>
+                        <span>
+                            ${escapeHTML(
+                                election.maxPositions ||
+                                election.maximumPositions ||
+                                "Not specified"
+                            )}
+                        </span>
+                    </div>
+
+                </div>
+
+                <h4 class="positions-title">
+                    Positions & Candidates
+                </h4>
+
+                <div class="positions-container">
+                    <div class="loading">
+                        Loading positions...
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+
+                    ${
+                        status.canVote
+                            ? `
+                                <a
+                                    class="vote-btn"
+                                    href="cast-vote.html?electionId=${encodeURIComponent(electionId)}"
+                                >
+                                    Vote Now
+                                </a>
+                            `
+                            : `
+                                <button class="disabled-btn" disabled>
+                                    Voting Not Available
+                                </button>
+                            `
+                    }
+
+                </div>
+            `;
+
+            container.appendChild(card);
+
+            const positionsContainer =
+                card.querySelector(".positions-container");
+
+            await loadPositionsAndCandidates(
+                electionId,
+                positionsContainer
+            );
+        }
+
+
+        async function loadPositionsAndCandidates(
+            electionId,
+            container
+        ) {
+
+            try {
+
+                const positionsResponse =
+                    await fetch(
+                        `${API_BASE}/positions/election/${electionId}`
+                    );
+
+                const candidatesResponse =
+                    await fetch(
+                        `${API_BASE}/candidates/election/${electionId}`
+                    );
+
+                if (
+                    !positionsResponse.ok ||
+                    !candidatesResponse.ok
+                ) {
+                    throw new Error("Unable to load positions.");
+                }
+
+                const positions =
+                    await positionsResponse.json();
+
+                const candidates =
+                    await candidatesResponse.json();
+
+                if (!Array.isArray(positions) || positions.length === 0) {
+
+                    container.innerHTML = `
+                        <p class="no-data">
+                            No positions have been added for this election.
+                        </p>
+                    `;
+
+                    return;
+                }
+
+                let html = "";
+
+                positions.forEach(position => {
+
+                    const positionCandidates =
+                        candidates.filter(candidate =>
+                            Number(candidate.positionId) ===
+                            Number(position.id)
+                        );
+
+                    html += `
+                        <div class="position-card">
+
+                            <div class="position-title">
+                                ${escapeHTML(position.name)}
+                            </div>
+                    `;
+
+                    if (
+                        !Array.isArray(positionCandidates) ||
+                        positionCandidates.length === 0
+                    ) {
+
+                        html += `
+                            <p class="no-data">
+                                No candidates have been added for this position.
+                            </p>
+                        `;
+
+                    } else {
+
+                        html += `
+                            <div class="candidate-grid">
+                        `;
+
+                        positionCandidates.forEach(candidate => {
+
+                            const photo =
+                                candidate.photo &&
+                                String(candidate.photo).trim() !== ""
+                                    ? candidate.photo
+                                    : "https://via.placeholder.com/150?text=Candidate";
+
+                            html += `
+                                <div class="candidate-card">
+
+                                    <img
+                                        class="candidate-photo"
+                                        src="${escapeHTML(photo)}"
+                                        alt="Candidate Photo"
+                                        onerror="this.src='https://via.placeholder.com/150?text=Candidate'"
+                                    >
+
+                                    <div class="candidate-info">
+
+                                        <h4>
+                                            ${escapeHTML(candidate.name)}
+                                        </h4>
+
+                                        <div class="candidate-email">
+                                            ${escapeHTML(candidate.email || "Email not provided")}
+                                        </div>
+
+                                        <div class="bio-title">
+                                            Biography
+                                        </div>
+
+                                        <div class="biography">
+                                            ${escapeHTML(
+                                                candidate.biography ||
+                                                "No biography provided."
+                                            )}
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            `;
+
+                        });
+
+                        html += `
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (error) {
+
+                console.error(
+                    "Positions/candidates loading error:",
+                    error
+                );
+
+                container.innerHTML = `
+                    <div class="error">
+                        Unable to load positions and candidates
+                        for this election.
+                    </div>
+                `;
+            }
+        }
+
+
+        function goBack() {
+            window.location.href = "dashboard.html";
+        }
+
+
+        loadElections();
+
+    </script>
+
+</body>
+
+</html>s

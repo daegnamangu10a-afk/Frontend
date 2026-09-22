@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Voting Criteria - Electo</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 26px;
+        }
+
+        header span {
+            font-size: 15px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            font-size: 25px;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .election-name-box {
+            background: #f3f4f6;
+            border-left: 5px solid #2563eb;
+            padding: 18px 20px;
+            border-radius: 7px;
+            margin-bottom: 30px;
+        }
+
+        .election-name-box .label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .election-name-box .name {
+            font-size: 21px;
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .status {
+            display: none;
+            padding: 13px 16px;
+            border-radius: 7px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            border: none;
+            padding: 13px 24px;
+            border-radius: 7px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .submit-btn {
+            background: #16a34a;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background: #15803d;
+        }
+
+        .back-btn {
+            background: #6b7280;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background: #4b5563;
+        }
+
+        .saved-status {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #475569;
+            display: none;
+        }
+
+        .saved-status strong {
+            color: #111827;
+        }
+
+        @media (max-width: 650px) {
+
+            header {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .container {
+                margin-top: 25px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            textarea {
+                min-height: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Electo</h1>
+    <span>Admin Panel</span>
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <h2>Voting Criteria</h2>
+
+        <p class="description">
+            Write the complete voting criteria and rules that voters
+            must follow during this election.
+        </p>
+
+        <div class="election-name-box">
+
+            <div class="label">
+                Election Name
+            </div>
+
+            <div
+                class="name"
+                id="electionName"
+            >
+                Loading...
+            </div>
+
+        </div>
+
+        <div
+            id="successMessage"
+            class="status success"
+        >
+            Voting criteria saved successfully.
+        </div>
+
+        <div
+            id="warningMessage"
+            class="status warning"
+        >
+            Please write the voting criteria before submitting.
+        </div>
+
+        <div class="form-group">
+
+            <label for="criteria">
+                Voting Criteria
+            </label>
+
+            <textarea
+                id="criteria"
+                placeholder="Write the voting criteria here...
+
+For example:
+
+1. Only registered students are eligible to vote.
+2. Each voter can vote only once.
+3. A voter can select candidates according to the election rules.
+4. The voter must verify their identity before voting.
+5. Votes submitted after the election deadline will not be accepted.
+
+You can write any rules or instructions applicable to this election."
+            ></textarea>
+
+        </div>
+
+        <div class="buttons">
+
+            <button
+                class="save-btn"
+                onclick="saveCriteria()"
+            >
+                Save Criteria
+            </button>
+
+            <button
+                class="submit-btn"
+                onclick="submitCriteria()"
+            >
+                Submit
+            </button>
+
+            <button
+                class="back-btn"
+                onclick="goBack()"
+            >
+                Back to Dashboard
+            </button>
+
+        </div>
+
+        <div
+            id="savedStatus"
+            class="saved-status"
+        ></div>
+
+    </div>
+
+</div>
+
+<script>
+
+    // ==========================================
+    // ADMIN ACCESS CHECK
+    // ==========================================
+
+    const userEmail = localStorage.getItem("userEmail");
+    const userRole = localStorage.getItem("userRole");
+
+    if (!userEmail || userRole !== "ADMIN") {
+
+        alert("Access denied. Admin access required.");
+
+        window.location.href = "index.html";
+    }
+
+
+    // ==========================================
+    // GET SELECTED ELECTION
+    // ==========================================
+
+    function getSelectedElection() {
+
+        const selectedElectionData =
+            localStorage.getItem("selectedElection");
+
+        if (selectedElectionData) {
+
+            try {
+
+                return JSON.parse(selectedElectionData);
+
+            } catch (error) {
+
+                console.error(
+                    "Invalid selected election data:",
+                    error
+                );
+
+            }
+        }
+
+
+        // Fallback for compatibility
+
+        const electionsData =
+            localStorage.getItem("elections");
+
+        if (electionsData) {
+
+            try {
+
+                const elections =
+                    JSON.parse(electionsData);
+
+                if (elections.length > 0) {
+
+                    return elections[elections.length - 1];
+
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Invalid elections data:",
+                    error
+                );
+
+            }
+        }
+
+
+        return null;
+    }
+
+
+    // ==========================================
+    // FIND ELECTION IN ELECTION LIST
+    // ==========================================
+
+    function findElectionIndex(election) {
+
+        const electionsData =
+            localStorage.getItem("elections");
+
+        if (!electionsData) {
+            return -1;
+        }
+
+        let elections;
+
+        try {
+
+            elections =
+                JSON.parse(electionsData);
+
+        } catch (error) {
+
+            return -1;
+
+        }
+
+
+        return elections.findIndex(function(item) {
+
+            if (
+                election.id &&
+                item.id
+            ) {
+
+                return item.id === election.id;
+
+            }
+
+            return (
+                item.name === election.name &&
+                item.startDate === election.startDate &&
+                item.endDate === election.endDate
+            );
+
+        });
+    }
+
+
+    // ==========================================
+    // LOAD ELECTION
+    // ==========================================
+
+    function loadElection() {
+
+        const election =
+            getSelectedElection();
+
+        const electionName =
+            document.getElementById("electionName");
+
+
+        if (!election) {
+
+            electionName.textContent =
+                "No election selected";
+
+            document.getElementById("criteria").disabled =
+                true;
+
+            return;
+        }
+
+
+        electionName.textContent =
+            election.name || "Unnamed Election";
+
+
+        loadSavedCriteria(election);
+
+    }
+
+
+    // ==========================================
+    // SAVE CRITERIA
+    // ==========================================
+
+    function saveCriteria() {
+
+        const criteria =
+            document.getElementById("criteria").value.trim();
+
+
+        if (criteria === "") {
+
+            showWarning(
+                "Please write the voting criteria before saving."
+            );
+
+            return;
+        }
+
+
+        const election =
+            getSelectedElection();
+
+
+        if (!election) {
+
+            showWarning(
+                "No election selected."
+            );
+
+            return;
+        }
+
+
+        const electionIndex =
+            findElectionIndex(election);
+
+
+        if (electionIndex === -1) {
+
+            showWarning(
+                "Election could not be found."
+            );
+
+            return;
+        }
+
+
+        const elections =
+            JSON.parse(
+                localStorage.getItem("elections")
+            );
+
+
+        elections[electionIndex].votingCriteria = {
+
+            criteria: criteria,
+
+            submitted: false,
+
+            savedAt: new Date().toISOString()
+
+        };
+
+
+        localStorage.setItem(
+            "elections",
+            JSON.stringify(elections)
+        );
+
+
+        // Update selected election as well
+
+        localStorage.setItem(
+            "selectedElection",
+            JSON.stringify(
+                elections[electionIndex]
+            )
+        );
+
+
+        showSuccess(
+            "Voting criteria saved successfully."
+        );
+
+
+        displaySavedStatus(
+            elections[electionIndex].votingCriteria
+        );
+    }
+
+
+    // ==========================================
+    // SUBMIT CRITERIA
+    // ==========================================
+
+    function submitCriteria() {
+
+        const criteria =
+            document.getElementById("criteria").value.trim();
+
+
+        if (criteria === "") {
+
+            showWarning(
+                "Please write the voting criteria before submitting."
+            );
+
+            return;
+        }
+
+
+        const election =
+            getSelectedElection();
+
+
+        if (!election) {
+
+            showWarning(
+                "No election selected."
+            );
+
+            return;
+        }
+
+
+        const confirmSubmit =
+            confirm(
+                "Are you sure you want to submit these voting criteria?\n\n" +
+                "Once submitted, they will be treated as the finalized criteria."
+            );
+
+
+        if (!confirmSubmit) {
+            return;
+        }
+
+
+        const electionIndex =
+            findElectionIndex(election);
+
+
+        if (electionIndex === -1) {
+
+            showWarning(
+                "Election could not be found."
+            );
+
+            return;
+        }
+
+
+        const elections =
+            JSON.parse(
+                localStorage.getItem("elections")
+            );
+
+
+        elections[electionIndex].votingCriteria = {
+
+            criteria: criteria,
+
+            submitted: true,
+
+            submittedAt: new Date().toISOString()
+
+        };
+
+
+        localStorage.setItem(
+            "elections",
+            JSON.stringify(elections)
+        );
+
+
+        // Update selected election
+
+        localStorage.setItem(
+            "selectedElection",
+            JSON.stringify(
+                elections[electionIndex]
+            )
+        );
+
+
+        alert(
+            "Voting criteria submitted successfully!"
+        );
+
+
+        window.location.href =
+            "admin-dashboard.html";
+    }
+
+
+    // ==========================================
+    // LOAD SAVED CRITERIA
+    // ==========================================
+
+    function loadSavedCriteria(election) {
+
+        if (!election) {
+            return;
+        }
+
+
+        if (!election.votingCriteria) {
+            return;
+        }
+
+
+        const votingCriteria =
+            election.votingCriteria;
+
+
+        document.getElementById("criteria").value =
+            votingCriteria.criteria || "";
+
+
+        displaySavedStatus(
+            votingCriteria
+        );
+    }
+
+
+    // ==========================================
+    // DISPLAY SAVED STATUS
+    // ==========================================
+
+    function displaySavedStatus(votingCriteria) {
+
+        const savedStatus =
+            document.getElementById("savedStatus");
+
+
+        if (!votingCriteria) {
+
+            savedStatus.style.display =
+                "none";
+
+            return;
+        }
+
+
+        savedStatus.style.display =
+            "block";
+
+
+        if (votingCriteria.submitted) {
+
+            savedStatus.innerHTML =
+                "<strong>Status:</strong> Submitted / Finalized";
+
+        } else {
+
+            savedStatus.innerHTML =
+                "<strong>Status:</strong> Saved as draft";
+        }
+    }
+
+
+    // ==========================================
+    // SUCCESS MESSAGE
+    // ==========================================
+
+    function showSuccess(message) {
+
+        const successMessage =
+            document.getElementById("successMessage");
+
+
+        successMessage.textContent =
+            message;
+
+        successMessage.style.display =
+            "block";
+
+
+        document.getElementById(
+            "warningMessage"
+        ).style.display =
+            "none";
+
+
+        setTimeout(function() {
+
+            successMessage.style.display =
+                "none";
+
+        }, 3000);
+    }
+
+
+    // ==========================================
+    // WARNING MESSAGE
+    // ==========================================
+
+    function showWarning(message) {
+
+        const warningMessage =
+            document.getElementById("warningMessage");
+
+
+        warningMessage.textContent =
+            message;
+
+        warningMessage.style.display =
+            "block";
+
+
+        document.getElementById(
+            "successMessage"
+        ).style.display =
+            "none";
+    }
+
+
+    // ==========================================
+    // BACK TO DASHBOARD
+    // ==========================================
+
+    function goBack() {
+
+        window.location.href =
+            "admin-dashboard.html";
+    }
+
+
+    // ==========================================
+    // PAGE LOAD
+    // ==========================================
+
+    loadElection();
+
+</script>
+
+</body>
+</html>

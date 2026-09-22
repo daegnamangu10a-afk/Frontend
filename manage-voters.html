@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Electo - Manage Voters</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .voter-section {
+            width: 100%;
+            margin-top: 25px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .top-actions button {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .form-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-card h2 {
+            margin-top: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .form-grid input,
+        .form-grid select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .form-buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f2f2f2;
+        }
+
+        .action-btn {
+            padding: 7px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+
+        .status-voted {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-not-voted {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+        #message {
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="logo">ELECTO</div>
+
+        <h1>Manage Voters</h1>
+
+        <p class="subtitle">
+            Election Management System
+        </p>
+
+        <div class="login-card voter-section">
+
+            <div class="top-actions">
+
+                <button onclick="goBack()">
+                    ← Back to Dashboard
+                </button>
+
+                <button onclick="loadVoters()">
+                    🔄 Refresh Voters
+                </button>
+
+                <button onclick="exportVoters()">
+                    📊 Export Excel
+                </button>
+
+            </div>
+
+            <div class="form-card">
+
+                <h2 id="formTitle">Add New Voter</h2>
+
+                <div class="form-grid">
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Email ID"
+                    >
+
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Full Name"
+                    >
+
+                    <input
+                        type="text"
+                        id="course"
+                        placeholder="Course"
+                    >
+
+                    <input
+                        type="text"
+                        id="year"
+                        placeholder="Year"
+                    >
+
+                    <input
+                        type="text"
+                        id="shift"
+                        placeholder="Shift"
+                    >
+
+                    <select id="role">
+                        <option value="VOTER">VOTER</option>
+                        <option value="ADMIN">ADMIN</option>
+                    </select>
+
+                </div>
+
+                <div class="form-buttons">
+
+                    <button onclick="saveVoter()" id="saveButton">
+                        ➕ Add Voter
+                    </button>
+
+                    <button onclick="cancelEdit()" id="cancelButton"
+                        style="display:none;">
+                        Cancel
+                    </button>
+
+                </div>
+
+            </div>
+
+            <input
+                type="text"
+                id="searchBox"
+                class="search-box"
+                placeholder="🔍 Search by name, email, course, year or shift..."
+                oninput="filterVoters()"
+            >
+
+            <div id="message"></div>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Course</th>
+                            <th>Year</th>
+                            <th>Shift</th>
+                            <th>Role</th>
+                            <th>Voting Status</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="voterTableBody">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        const API_URL = "http://localhost:8080/api/voters";
+
+        let voters = [];
+
+        let editingVoterId = null;
+
+
+        // Check admin login
+        const userRole = localStorage.getItem("userRole");
+
+        if (userRole !== "ADMIN") {
+
+            alert("Admin access required.");
+
+            window.location.href = "index.html";
+        }
+
+
+        // Load voters when page opens
+        loadVoters();
+
+
+        function loadVoters() {
+
+            document.getElementById("message").innerText =
+                "Loading voters...";
+
+            fetch(API_URL)
+
+                .then(response => {
+
+                    if (!response.ok) {
+                        throw new Error("Failed to load voters.");
+                    }
+
+                    return response.json();
+                })
+
+                .then(data => {
+
+                    voters = data;
+
+                    displayVoters(voters);
+
+                    document.getElementById("message").innerText =
+                        "Voters loaded successfully.";
+
+                })
+
+                .catch(error => {
+
+                    console.error(error);
+
+                    document.getElementById("message").innerText =
+                        "Unable to load voters. Make sure Electo server is running.";
+
+                });
+        }
+
+
+        function displayVoters(list) {
+
+            const tableBody =
+                document.getElementById("voterTableBody");
+
+            tableBody.innerHTML = "";
+
+
+            if (list.length === 0) {
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            No voters found.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+
+            list.forEach(voter => {
+
+                const row =
+                    document.createElement("tr");
+
+
+                row.innerHTML = `
+
+                    <td>${voter.id ?? ""}</td>
+
+                    <td>${voter.name ?? ""}</td>
+
+                    <td>${voter.email ?? ""}</td>
+
+                    <td>${voter.course ?? ""}</td>
+
+                    <td>${voter.year ?? ""}</td>
+
+                    <td>${voter.shift ?? ""}</td>
+
+                    <td>${voter.role ?? ""}</td>
+
+                    <td>
+                        ${
+                            voter.hasVoted
+                            ? '<span class="status-voted">✓ Voted</span>'
+                            : '<span class="status-not-voted">Not Voted</span>'
+                        }
+                    </td>
+
+                    <td>
+
+                        <button
+                            class="action-btn"
+                            onclick="editVoter(${voter.id})">
+                            ✏️ Edit
+                        </button>
+
+                        <button
+                            class="action-btn"
+                            onclick="deleteVoter(${voter.id})">
+                            🗑️ Delete
+                        </button>
+
+                    </td>
+
+                `;
+
+
+                tableBody.appendChild(row);
+
+            });
+        }
+
+
+        function saveVoter() {
+
+            const email =
+                document.getElementById("email").value.trim();
+
+            const name =
+                document.getElementById("name").value.trim();
+
+            const course =
+                document.getElementById("course").value.trim();
+
+            const year =
+                document.getElementById("year").value.trim();
+
+            const shift =
+                document.getElementById("shift").value.trim();
+
+            const role =
+                document.getElementById("role").value;
+
+
+            if (!email) {
+
+                alert("Please enter email ID.");
+
+                return;
+            }
+
+
+            if (!name) {
+
+                alert("Please enter voter name.");
+
+                return;
+            }
+
+
+            const voterData = {
+
+                email: email,
+                name: name,
+                course: course,
+                year: year,
+                shift: shift,
+                role: role
+
+            };
+
+
+            // UPDATE
+            if (editingVoterId !== null) {
+
+                fetch(
+                    `${API_URL}/${editingVoterId}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify(voterData)
+                    }
+                )
+
+                .then(response => {
+
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(text);
+                        });
+                    }
+
+                    return response.json();
+
+                })
+
+                .then(() => {
+
+                    document.getElementById("message").innerText =
+                        "Voter updated successfully.";
+
+                    cancelEdit();
+
+                    loadVoters();
+
+                })
+
+                .catch(error => {
+
+                    console.error(error);
+
+                    document.getElementById("message").innerText =
+                        "Unable to update voter: " + error.message;
+
+                });
+
+                return;
+            }
+
+
+            // ADD
+            fetch(API_URL, {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(voterData)
+
+            })
+
+            .then(response => {
+
+                if (!response.ok) {
+
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+
+                }
+
+                return response.json();
+
+            })
+
+            .then(() => {
+
+                document.getElementById("message").innerText =
+                    "Voter added successfully.";
+
+                clearForm();
+
+                loadVoters();
+
+            })
+
+            .catch(error => {
+
+                console.error(error);
+
+                document.getElementById("message").innerText =
+                    "Unable to add voter: " + error.message;
+
+            });
+
+        }
+
+
+        function editVoter(id) {
+
+            const voter =
+                voters.find(v => v.id === id);
+
+
+            if (!voter) {
+                return;
+            }
+
+
+            editingVoterId = id;
+
+
+            document.getElementById("email").value =
+                voter.email ?? "";
+
+            document.getElementById("name").value =
+                voter.name ?? "";
+
+            document.getElementById("course").value =
+                voter.course ?? "";
+
+            document.getElementById("year").value =
+                voter.year ?? "";
+
+            document.getElementById("shift").value =
+                voter.shift ?? "";
+
+            document.getElementById("role").value =
+                voter.role ?? "VOTER";
+
+
+            document.getElementById("formTitle").innerText =
+                "Edit Voter";
+
+            document.getElementById("saveButton").innerText =
+                "💾 Update Voter";
+
+            document.getElementById("cancelButton").style.display =
+                "inline-block";
+
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        }
+
+
+        function cancelEdit() {
+
+            editingVoterId = null;
+
+            clearForm();
+
+            document.getElementById("formTitle").innerText =
+                "Add New Voter";
+
+            document.getElementById("saveButton").innerText =
+                "➕ Add Voter";
+
+            document.getElementById("cancelButton").style.display =
+                "none";
+
+        }
+
+
+        function clearForm() {
+
+            document.getElementById("email").value = "";
+
+            document.getElementById("name").value = "";
+
+            document.getElementById("course").value = "";
+
+            document.getElementById("year").value = "";
+
+            document.getElementById("shift").value = "";
+
+            document.getElementById("role").value = "VOTER";
+
+        }
+
+
+        function deleteVoter(id) {
+
+            const voter =
+                voters.find(v => v.id === id);
+
+
+            if (!voter) {
+                return;
+            }
+
+
+            const confirmed =
+                confirm(
+                    `Are you sure you want to delete ${voter.name || voter.email}?`
+                );
+
+
+            if (!confirmed) {
+                return;
+            }
+
+
+            fetch(`${API_URL}/${id}`, {
+
+                method: "DELETE"
+
+            })
+
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error("Unable to delete voter.");
+                }
+
+                return response.text();
+
+            })
+
+            .then(() => {
+
+                document.getElementById("message").innerText =
+                    "Voter deleted successfully.";
+
+                loadVoters();
+
+            })
+
+            .catch(error => {
+
+                console.error(error);
+
+                document.getElementById("message").innerText =
+                    "Unable to delete voter.";
+
+            });
+
+        }
+
+
+        function filterVoters() {
+
+            const search =
+                document.getElementById("searchBox")
+                .value
+                .toLowerCase()
+                .trim();
+
+
+            const filtered =
+                voters.filter(voter => {
+
+                    return (
+
+                        (voter.name || "")
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        (voter.email || "")
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        (voter.course || "")
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        (voter.year || "")
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        (voter.shift || "")
+                            .toLowerCase()
+                            .includes(search)
+
+                        ||
+
+                        (voter.role || "")
+                            .toLowerCase()
+                            .includes(search)
+
+                    );
+
+                });
+
+
+            displayVoters(filtered);
+
+        }
+
+
+        function exportVoters() {
+
+            window.location.href =
+                "http://localhost:8080/api/voters/export";
+
+        }
+
+
+        function goBack() {
+
+            window.location.href =
+                "admin-dashboard.html";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

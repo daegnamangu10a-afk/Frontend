@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Electo - Admin Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f5f7fb;
+            color: #222;
+        }
+
+        /* ================= HEADER ================= */
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 40px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #userEmail {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: #ef4444;
+            border: none;
+            color: white;
+
+            padding: 9px 18px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        /* ================= MAIN ================= */
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 25px;
+        }
+
+        .welcome {
+            margin-bottom: 30px;
+        }
+
+        .welcome h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #6b7280;
+        }
+
+        .admin-badge {
+            display: inline-block;
+
+            background: #111827;
+            color: white;
+
+            padding: 6px 14px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            margin-top: 10px;
+
+            font-weight: 600;
+        }
+
+        /* ================= DASHBOARD TITLE ================= */
+
+        .dashboard-title {
+            font-size: 23px;
+            font-weight: 700;
+
+            margin-bottom: 20px;
+        }
+
+        /* ================= CARDS ================= */
+
+        .cards {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(230px, 1fr));
+
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+
+            border-radius: 14px;
+
+            padding: 25px;
+
+            box-shadow:
+                0 4px 15px rgba(0, 0, 0, 0.07);
+
+            transition: 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-icon {
+            font-size: 30px;
+            margin-bottom: 12px;
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+
+            font-size: 18px;
+        }
+
+        .card p {
+            color: #6b7280;
+
+            font-size: 14px;
+
+            margin-bottom: 18px;
+
+            line-height: 1.5;
+        }
+
+        .card button {
+            width: 100%;
+
+            padding: 11px;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: #111827;
+
+            color: white;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+        .card button:hover {
+            background: #374151;
+        }
+
+        /* ================= VOTER PANEL ================= */
+
+        #voterPanel {
+            display: none;
+        }
+
+        .voter-badge {
+            display: inline-block;
+
+            background: #2563eb;
+            color: white;
+
+            padding: 6px 14px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            margin-top: 10px;
+
+            font-weight: 600;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 15px 20px;
+            }
+
+            .logo {
+                font-size: 22px;
+            }
+
+            #userEmail {
+                display: none;
+            }
+
+            .container {
+                margin: 25px auto;
+            }
+
+            .welcome h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header>
+
+        <div class="logo">
+            ELECTO
+        </div>
+
+        <div class="header-right">
+
+            <span id="userEmail"></span>
+
+            <button class="logout-btn" onclick="logout()">
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <div class="container">
+
+        <div class="welcome">
+
+            <h1>
+                Welcome to Electo
+            </h1>
+
+            <p>
+                Election Management System
+            </p>
+
+            <div id="roleBadge"></div>
+
+        </div>
+
+
+        <!-- ================= ADMIN DASHBOARD ================= -->
+
+        <div id="adminPanel" style="display:none;">
+
+            <div class="dashboard-title">
+                Admin Dashboard
+            </div>
+
+            <div class="cards">
+
+
+                <!-- CREATE ELECTION -->
+
+                <div class="card">
+
+                    <div class="card-icon">🗳️</div>
+
+                    <h3>
+                        Create Election
+                    </h3>
+
+                    <p>
+                        Create and configure a new election.
+                    </p>
+
+                    <button onclick="goTo('create-election.html')">
+                        Create Election
+                    </button>
+
+                </div>
+
+
+                <!-- MANAGE ELECTIONS -->
+
+                <div class="card">
+
+                    <div class="card-icon">📋</div>
+
+                    <h3>
+                        Manage Elections
+                    </h3>
+
+                    <p>
+                        View and manage your existing elections.
+                    </p>
+
+                    <button onclick="goTo('manage-elections.html')">
+                        Manage Elections
+                    </button>
+
+                </div>
+
+
+                <!-- VOTING CRITERIA -->
+
+                <div class="card">
+
+                    <div class="card-icon">⚙️</div>
+
+                    <h3>
+                        Voting Criteria
+                    </h3>
+
+                    <p>
+                        Configure eligibility and voting rules.
+                    </p>
+
+                    <button onclick="goTo('voting-criteria.html')">
+                        Voting Criteria
+                    </button>
+
+                </div>
+
+
+                <!-- MANAGE POSITIONS -->
+
+                <div class="card">
+
+                    <div class="card-icon">🏛️</div>
+
+                    <h3>
+                        Manage Positions
+                    </h3>
+
+                    <p>
+                        Add and manage positions for elections.
+                    </p>
+
+                    <button onclick="goTo('manage-positions.html')">
+                        Manage Positions
+                    </button>
+
+                </div>
+
+
+                <!-- MANAGE CANDIDATES -->
+
+                <div class="card">
+
+                    <div class="card-icon">👤</div>
+
+                    <h3>
+                        Manage Candidates
+                    </h3>
+
+                    <p>
+                        Add and manage candidates for elections.
+                    </p>
+
+                    <button onclick="goTo('manage-candidates.html')">
+                        Manage Candidates
+                    </button>
+
+                </div>
+
+
+                <!-- MANAGE VOTERS -->
+
+                <div class="card">
+
+                    <div class="card-icon">👥</div>
+
+                    <h3>
+                        Manage Voters
+                    </h3>
+
+                    <p>
+                        View and manage registered voters.
+                    </p>
+
+                    <button onclick="goTo('manage-voters.html')">
+                        Manage Voters
+                    </button>
+
+                </div>
+
+
+                <!-- VIEW RESULTS -->
+
+                <div class="card">
+
+                    <div class="card-icon">📊</div>
+
+                    <h3>
+                        View Results
+                    </h3>
+
+                    <p>
+                        View election results and voting statistics.
+                    </p>
+
+                    <button onclick="goTo('view-results.html')">
+                        View Results
+                    </button>
+
+                </div>
+
+
+                <!-- ELECTION HISTORY -->
+
+                <div class="card">
+
+                    <div class="card-icon">🕐</div>
+
+                    <h3>
+                        Election History
+                    </h3>
+
+                    <p>
+                        View previous and completed elections.
+                    </p>
+
+                    <button onclick="goTo('election-history.html')">
+                        Election History
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================= VOTER DASHBOARD ================= -->
+
+        <div id="voterPanel">
+
+            <div class="dashboard-title">
+                Voter Dashboard
+            </div>
+
+            <div class="cards">
+
+                <div class="card">
+
+                    <div class="card-icon">👤</div>
+
+                    <h3>
+                        My Details
+                    </h3>
+
+                    <p>
+                        View your personal and election details.
+                    </p>
+
+                    <button onclick="goTo('my-details.html')">
+                        My Details
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="card-icon">🗳️</div>
+
+                    <h3>
+                        View Elections
+                    </h3>
+
+                    <p>
+                       Cast your vote securely in an active election.
+                    </p>
+
+                    <button onclick="goTo('view-elections.html')">
+                        View Elections
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="card-icon">✅</div>
+
+                    <h3>
+                        Cast Vote
+                    </h3>
+
+                    <p>
+                       Cast your vote securely and make your choice count. 
+                    </p>
+
+                    <button onclick="goTo('cast-vote.html')">
+                        Cast Vote
+                    </button>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div class="card-icon">📌</div>
+
+                    <h3>
+                        Voting Status
+                    </h3>
+
+                    <p>
+                        Check your voting status and participation details.
+                    </p>
+
+                    <button onclick="goTo('voting-status.html')">
+                        Voting Status
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script>
+
+        const userEmail =
+            localStorage.getItem("userEmail");
+
+        const userRole =
+            localStorage.getItem("userRole");
+
+
+        // =========================
+        // LOGIN CHECK
+        // =========================
+
+        if (!userEmail || !userRole) {
+
+            window.location.href = "index.html";
+
+        }
+
+
+        // =========================
+        // SHOW EMAIL
+        // =========================
+
+        document.getElementById("userEmail")
+            .innerText = userEmail;
+
+
+        // =========================
+        // ADMIN
+        // =========================
+
+        if (userRole === "ADMIN") {
+
+            document.getElementById("adminPanel")
+                .style.display = "block";
+
+            document.getElementById("roleBadge")
+                .innerHTML =
+                '<span class="admin-badge">ADMIN</span>';
+
+        }
+
+
+        // =========================
+        // VOTER
+        // =========================
+
+        else if (userRole === "VOTER") {
+
+            document.getElementById("voterPanel")
+                .style.display = "block";
+
+            document.getElementById("roleBadge")
+                .innerHTML =
+                '<span class="voter-badge">VOTER</span>';
+
+        }
+
+
+        // =========================
+        // INVALID ROLE
+        // =========================
+
+        else {
+
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("userRole");
+
+            window.location.href = "index.html";
+
+        }
+
+
+        // =========================
+        // NAVIGATION
+        // =========================
+
+        function goTo(page) {
+
+            window.location.href = page;
+
+        }
+
+
+        // =========================
+        // LOGOUT
+        // =========================
+
+        function logout() {
+
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("userRole");
+
+            // IMPORTANT:
+            // Election data is NOT deleted.
+
+            window.location.href = "index.html";
+
+        }
+
+    </script>
+
+</body>
+
+</html>

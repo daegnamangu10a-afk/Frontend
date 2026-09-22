@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Details - Electo</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 18px 35px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 26px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        h2 {
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+            color: #374151;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+
+            font-size: 15px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        input[readonly] {
+            background: #f3f4f6;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        button {
+            border: none;
+            padding: 12px 22px;
+            border-radius: 7px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .back-btn {
+            background: #6b7280;
+            color: white;
+        }
+
+        .back-btn:hover {
+            background: #4b5563;
+        }
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 15px 20px;
+            }
+
+            .container {
+                margin-top: 25px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+
+    <header>
+
+        <h1>Electo</h1>
+
+        <div>
+            Voter Panel
+        </div>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <div class="container">
+
+        <div class="card">
+
+            <h2>My Details</h2>
+
+            <p class="subtitle">
+                Enter your details to register as a voter.
+            </p>
+
+
+            <!-- NAME -->
+
+            <div class="form-group">
+
+                <label for="name">
+                    Full Name
+                </label>
+
+                <input
+                    type="text"
+                    id="name"
+                    placeholder="Enter your full name"
+                >
+
+            </div>
+
+
+            <!-- EMAIL -->
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email ID
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    readonly
+                >
+
+            </div>
+
+
+            <!-- COURSE -->
+
+            <div class="form-group">
+
+                <label for="course">
+                    Course
+                </label>
+
+                <input
+                    type="text"
+                    id="course"
+                    placeholder="Example: BCA"
+                >
+
+            </div>
+
+
+            <!-- YEAR -->
+
+            <div class="form-group">
+
+                <label for="year">
+                    Year
+                </label>
+
+                <select id="year">
+
+                    <option value="">
+                        Select Year
+                    </option>
+
+                    <option value="1st Year">
+                        1st Year
+                    </option>
+
+                    <option value="2nd Year">
+                        2nd Year
+                    </option>
+
+                    <option value="3rd Year">
+                        3rd Year
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- SHIFT -->
+
+            <div class="form-group">
+
+                <label for="shift">
+                    Shift
+                </label>
+
+                <select id="shift">
+
+                    <option value="">
+                        Select Shift
+                    </option>
+
+                    <option value="Morning">
+                        Morning
+                    </option>
+
+                    <option value="Afternoon">
+                        Afternoon
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="buttons">
+
+                <button
+                    class="save-btn"
+                    onclick="saveDetails()"
+                >
+                    Save Details
+                </button>
+
+                <button
+                    class="back-btn"
+                    onclick="goBack()"
+                >
+                    Back to Dashboard
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+<script>
+
+    // ==========================================
+    // API
+    // ==========================================
+
+    const API = "http://localhost:8080/api";
+
+
+    // ==========================================
+    // LOGIN CHECK
+    // ==========================================
+
+    const userEmail =
+        localStorage.getItem("userEmail");
+
+    const userRole =
+        localStorage.getItem("userRole");
+
+
+    if (!userEmail || !userRole) {
+
+        alert("Please login first.");
+
+        window.location.href = "index.html";
+    }
+
+
+    if (userRole !== "VOTER") {
+
+        alert("Access denied. Voter only.");
+
+        window.location.href = "dashboard.html";
+    }
+
+
+    // ==========================================
+    // CURRENT VOTER
+    // ==========================================
+
+    let currentVoter = null;
+
+
+    // ==========================================
+    // SET EMAIL
+    // ==========================================
+
+    document.getElementById("email").value =
+        userEmail;
+
+
+    // ==========================================
+    // LOAD VOTER DETAILS FROM DATABASE
+    // ==========================================
+
+    async function loadVoterDetails() {
+
+        try {
+
+            const response = await fetch(
+                API +
+                "/voters/by-email?email=" +
+                encodeURIComponent(userEmail)
+            );
+
+
+            // Check response
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load voter details."
+                );
+            }
+
+
+            // Get response as text first
+            // This prevents JSON parsing errors
+            const text =
+                await response.text();
+
+
+            if (!text.trim()) {
+
+                alert(
+                    "Voter record not found. Please login again."
+                );
+
+                return;
+            }
+
+
+            currentVoter =
+                JSON.parse(text);
+
+
+            console.log(
+                "Voter loaded from database:",
+                currentVoter
+            );
+
+
+            // ==================================
+            // FILL FORM WITH DATABASE DATA
+            // ==================================
+
+            document.getElementById("name").value =
+                currentVoter.name || "";
+
+
+            document.getElementById("email").value =
+                currentVoter.email || userEmail;
+
+
+            document.getElementById("course").value =
+                currentVoter.course || "";
+
+
+            document.getElementById("year").value =
+                currentVoter.year || "";
+
+
+            document.getElementById("shift").value =
+                currentVoter.shift || "";
+
+
+        } catch (error) {
+
+            console.error(
+                "Error loading voter:",
+                error
+            );
+
+            alert(
+                "Unable to load your details. Please make sure Electo server is running."
+            );
+        }
+    }
+
+
+    // ==========================================
+    // SAVE / UPDATE DETAILS
+    // ==========================================
+
+    async function saveDetails() {
+
+        const name =
+            document.getElementById("name").value.trim();
+
+
+        const course =
+            document.getElementById("course").value.trim();
+
+
+        const year =
+            document.getElementById("year").value;
+
+
+        const shift =
+            document.getElementById("shift").value;
+
+
+        // ======================================
+        // VALIDATION
+        // ======================================
+
+        if (!name || !course || !year || !shift) {
+
+            alert(
+                "Please fill all the details."
+            );
+
+            return;
+        }
+
+
+        // ======================================
+        // CHECK DATABASE VOTER
+        // ======================================
+
+        if (!currentVoter ||
+            !currentVoter.id) {
+
+            alert(
+                "Voter record not loaded. Please refresh the page and try again."
+            );
+
+            return;
+        }
+
+
+        // ======================================
+        // DATA TO SEND
+        // ======================================
+
+        const voterData = {
+
+            email: currentVoter.email,
+
+            name: name,
+
+            course: course,
+
+            year: year,
+
+            shift: shift,
+
+            // Keep existing role
+            role: currentVoter.role
+
+        };
+
+
+        console.log(
+            "Updating voter:",
+            voterData
+        );
+
+
+        try {
+
+            // ==================================
+            // UPDATE DATABASE
+            // ==================================
+
+            const response = await fetch(
+
+                API +
+                "/voters/" +
+                currentVoter.id,
+
+                {
+
+                    method: "PUT",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify(voterData)
+
+                }
+
+            );
+
+
+            // ==================================
+            // GET RESPONSE
+            // ==================================
+
+            const text =
+                await response.text();
+
+
+            console.log(
+                "Server response:",
+                text
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    text ||
+                    "Failed to update voter details."
+                );
+            }
+
+
+            // ==================================
+            // SUCCESS
+            // ==================================
+
+            alert(
+                "Your voter details have been saved successfully."
+            );
+
+
+            // Go back to dashboard
+
+            window.location.href =
+                "dashboard.html";
+
+
+        } catch (error) {
+
+            console.error(
+                "Save voter error:",
+                error
+            );
+
+
+            alert(
+                "Unable to save your details. Please make sure Electo server is running."
+            );
+        }
+    }
+
+
+    // ==========================================
+    // BACK TO DASHBOARD
+    // ==========================================
+
+    function goBack() {
+
+        window.location.href =
+            "dashboard.html";
+
+    }
+
+
+    // ==========================================
+    // LOAD DATA WHEN PAGE OPENS
+    // ==========================================
+
+    loadVoterDetails();
+
+</script>
+
+</body>
+
+</html>

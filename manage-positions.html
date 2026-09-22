@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Manage Positions - Electo</title>
+
+<style>
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #eef2ff, #f8fafc);
+        color: #1f2937;
+    }
+
+    /* ==============================
+       TOP BAR
+    ============================== */
+
+    .topbar {
+        background: linear-gradient(135deg, #312e81, #4f46e5);
+        color: white;
+        padding: 22px 50px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .logo {
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+
+    .admin-label {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    /* ==============================
+       MAIN CONTAINER
+    ============================== */
+
+    .main-container {
+        width: 92%;
+        max-width: 1200px;
+        margin: 35px auto;
+    }
+
+    /* ==============================
+       PAGE HEADING
+    ============================== */
+
+    .page-heading {
+        margin-bottom: 28px;
+    }
+
+    .page-heading h1 {
+        font-size: 32px;
+        color: #111827;
+        margin-bottom: 8px;
+    }
+
+    .page-heading p {
+        color: #6b7280;
+        font-size: 16px;
+    }
+
+    /* ==============================
+       SELECTED ELECTION
+    ============================== */
+
+    .selected-election {
+        background: linear-gradient(
+            135deg,
+            #eef2ff,
+            #ffffff
+        );
+
+        border: 1px solid #c7d2fe;
+        border-radius: 14px;
+
+        padding: 18px 20px;
+
+        margin-bottom: 28px;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        gap: 20px;
+    }
+
+    .selected-label {
+        font-size: 12px;
+        font-weight: 800;
+        color: #6366f1;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        margin-bottom: 5px;
+    }
+
+    .selected-name {
+        font-size: 19px;
+        font-weight: 750;
+        color: #111827;
+    }
+
+    .selected-badge {
+        background: #4f46e5;
+        color: white;
+
+        padding: 8px 13px;
+        border-radius: 20px;
+
+        font-size: 12px;
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+    /* ==============================
+       CONTENT GRID
+    ============================== */
+
+    .content-grid {
+        display: grid;
+
+        grid-template-columns: 380px 1fr;
+
+        gap: 28px;
+
+        align-items: start;
+    }
+
+    /* ==============================
+       CARD
+    ============================== */
+
+    .card {
+        background: white;
+
+        border-radius: 18px;
+
+        padding: 28px;
+
+        box-shadow:
+            0 8px 25px rgba(15, 23, 42, 0.08);
+
+        border: 1px solid #e5e7eb;
+    }
+
+    .card h2 {
+        font-size: 21px;
+        color: #312e81;
+        margin-bottom: 8px;
+    }
+
+    .card-description {
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    /* ==============================
+       FORM
+    ============================== */
+
+    .form-group {
+        margin-bottom: 19px;
+    }
+
+    label {
+        display: block;
+
+        margin-bottom: 8px;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        color: #374151;
+    }
+
+    input {
+        width: 100%;
+
+        padding: 13px 14px;
+
+        border: 1px solid #d1d5db;
+
+        border-radius: 10px;
+
+        font-size: 14px;
+
+        outline: none;
+
+        transition: 0.2s;
+
+        background: #f9fafb;
+    }
+
+    input:focus {
+        border-color: #4f46e5;
+
+        background: white;
+
+        box-shadow:
+            0 0 0 3px
+            rgba(79, 70, 229, 0.12);
+    }
+
+    /* ==============================
+       BUTTONS
+    ============================== */
+
+    .btn {
+        width: 100%;
+
+        border: none;
+
+        padding: 13px 18px;
+
+        border-radius: 10px;
+
+        font-size: 15px;
+
+        font-weight: 700;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+    .btn-primary {
+        background:
+            linear-gradient(
+                135deg,
+                #4f46e5,
+                #6366f1
+            );
+
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 6px 15px
+            rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-secondary {
+        background: #eef2ff;
+
+        color: #4338ca;
+
+        margin-top: 12px;
+    }
+
+    .btn-secondary:hover {
+        background: #e0e7ff;
+    }
+
+    /* ==============================
+       MESSAGE
+    ============================== */
+
+    .message {
+        display: none;
+
+        padding: 12px;
+
+        border-radius: 8px;
+
+        margin-top: 15px;
+
+        font-size: 14px;
+
+        font-weight: 600;
+    }
+
+    .success {
+        display: block;
+
+        background: #dcfce7;
+
+        color: #166534;
+    }
+
+    .error {
+        display: block;
+
+        background: #fee2e2;
+
+        color: #991b1b;
+    }
+
+    /* ==============================
+       POSITIONS HEADER
+    ============================== */
+
+    .positions-header {
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        margin-bottom: 20px;
+    }
+
+    .positions-header h2 {
+        margin-bottom: 0;
+    }
+
+    .count-badge {
+        background: #eef2ff;
+
+        color: #4338ca;
+
+        padding: 7px 12px;
+
+        border-radius: 20px;
+
+        font-size: 13px;
+
+        font-weight: 700;
+    }
+
+    /* ==============================
+       POSITION LIST
+    ============================== */
+
+    .position-list {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 16px;
+    }
+
+    .position-card {
+        border: 1px solid #e5e7eb;
+
+        border-radius: 14px;
+
+        padding: 20px;
+
+        background: #ffffff;
+
+        transition: 0.2s;
+    }
+
+    .position-card:hover {
+        border-color: #a5b4fc;
+
+        box-shadow:
+            0 5px 15px
+            rgba(79, 70, 229, 0.08);
+    }
+
+    .position-top {
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: flex-start;
+
+        gap: 15px;
+
+        margin-bottom: 15px;
+    }
+
+    .position-number {
+        font-size: 12px;
+
+        color: #6366f1;
+
+        font-weight: 800;
+
+        margin-bottom: 5px;
+    }
+
+    .position-title {
+        font-size: 19px;
+
+        font-weight: 750;
+
+        color: #111827;
+    }
+
+    .position-id {
+        font-size: 12px;
+
+        color: #9ca3af;
+
+        background: #f9fafb;
+
+        padding: 6px 9px;
+
+        border-radius: 7px;
+
+        white-space: nowrap;
+    }
+
+    .position-info {
+        display: grid;
+
+        grid-template-columns: 1fr 1fr;
+
+        gap: 12px;
+
+        margin-bottom: 15px;
+    }
+
+    .info-box {
+        background: #f9fafb;
+
+        border-radius: 9px;
+
+        padding: 11px;
+    }
+
+    .info-label {
+        display: block;
+
+        font-size: 12px;
+
+        color: #6b7280;
+
+        margin-bottom: 5px;
+
+        font-weight: 600;
+    }
+
+    .info-value {
+        font-size: 14px;
+
+        color: #374151;
+
+        font-weight: 700;
+    }
+
+    .position-actions {
+        display: flex;
+
+        gap: 10px;
+
+        justify-content: flex-end;
+
+        align-items: center;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        border: none;
+
+        padding: 9px 15px;
+
+        border-radius: 8px;
+
+        font-size: 13px;
+
+        font-weight: 700;
+
+        cursor: pointer;
+
+        transition: 0.2s;
+    }
+
+    .edit-btn {
+        background: #eef2ff;
+
+        color: #4338ca;
+    }
+
+    .edit-btn:hover {
+        background: #e0e7ff;
+
+        transform: translateY(-1px);
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+
+        color: #b91c1c;
+    }
+
+    .delete-btn:hover {
+        background: #fecaca;
+    }
+
+    /* ==============================
+       EMPTY STATE
+    ============================== */
+
+    .empty-state {
+        text-align: center;
+
+        padding: 45px 20px;
+
+        color: #6b7280;
+    }
+
+    .empty-state-icon {
+        font-size: 42px;
+
+        margin-bottom: 12px;
+    }
+
+    /* ==============================
+       BOTTOM NAVIGATION
+    ============================== */
+
+    .bottom-navigation {
+        margin-top: 28px;
+    }
+
+    /* ==============================
+       RESPONSIVE
+    ============================== */
+
+    @media (max-width: 900px) {
+
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .topbar {
+            padding: 20px 25px;
+        }
+
+    }
+
+    @media (max-width: 600px) {
+
+        .main-container {
+            width: 94%;
+
+            margin: 25px auto;
+        }
+
+        .page-heading h1 {
+            font-size: 27px;
+        }
+
+        .card {
+            padding: 22px;
+        }
+
+        .selected-election {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+        .position-top {
+            flex-direction: column;
+        }
+
+        .position-id {
+            align-self: flex-start;
+        }
+
+        .position-info {
+            grid-template-columns: 1fr;
+        }
+
+        .position-actions {
+            width: 100%;
+        }
+
+        .edit-btn,
+        .delete-btn {
+            flex: 1;
+        }
+
+    }
+
+</style>
+
+</head>
+
+<body>
+<!-- ==============================
+     TOP BAR
+============================== -->
+
+<header class="topbar">
+
+    <div class="logo">
+        ELECTO
+    </div>
+
+    <div class="admin-label">
+        Admin Panel
+    </div>
+
+</header>
+
+
+<!-- ==============================
+     MAIN
+============================== -->
+
+<main class="main-container">
+
+
+    <!-- PAGE HEADING -->
+
+    <section class="page-heading">
+
+        <h1>
+            Manage Positions
+        </h1>
+
+        <p>
+            Add and manage positions for the selected election.
+        </p>
+
+    </section>
+
+
+    <!-- SELECTED ELECTION -->
+
+    <section class="selected-election">
+
+        <div>
+
+            <div class="selected-label">
+                Selected Election
+            </div>
+
+            <div
+                id="electionName"
+                class="selected-name">
+
+                Loading election...
+
+            </div>
+
+        </div>
+
+
+        <div class="selected-badge">
+            Position Management
+        </div>
+
+    </section>
+
+
+    <!-- CONTENT -->
+
+    <div class="content-grid">
+
+
+        <!-- ==========================
+             ADD POSITION
+        =========================== -->
+
+        <section class="card">
+
+            <h2>
+                Add Position
+            </h2>
+
+            <p class="card-description">
+                Create a position and specify how many winners or seats are available.
+            </p>
+
+
+            <form id="positionForm">
+
+
+                <div class="form-group">
+
+                    <label for="positionName">
+                        Position Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="positionName"
+                        placeholder="Example: President"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="positionSeats">
+                        Number of Winners / Seats
+                    </label>
+
+                    <input
+                        type="number"
+                        id="positionSeats"
+                        min="1"
+                        value="1"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Add Position
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick="goBack()">
+
+                    Back to Admin Dashboard
+
+                </button>
+
+
+                <div
+                    id="message"
+                    class="message">
+                </div>
+
+
+            </form>
+
+        </section>
+
+
+        <!-- ==========================
+             EXISTING POSITIONS
+        =========================== -->
+
+        <section class="card">
+
+
+            <div class="positions-header">
+
+                <h2>
+                    Existing Positions
+                </h2>
+
+                <span
+                    id="positionCount"
+                    class="count-badge">
+
+                    0 Positions
+
+                </span>
+
+            </div>
+
+
+            <div
+                id="positionList"
+                class="position-list">
+
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        🏛️
+                    </div>
+
+                    <p>
+                        Loading positions...
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+    </div>
+
+
+</main>
+
+
+<script>
+
+    const API =
+        "http://localhost:8080/api";
+
+
+    // ==========================================
+    // LOGIN CHECK
+    // ==========================================
+
+    const email =
+        localStorage.getItem("userEmail");
+
+    const role =
+        localStorage.getItem("userRole");
+
+
+    if (!email || !role) {
+
+        alert("Please login first.");
+
+        window.location.replace(
+            "index.html"
+        );
+
+    }
+
+
+    // ==========================================
+    // ADMIN CHECK
+    // ==========================================
+
+    if (role !== "ADMIN") {
+
+        alert(
+            "Only an administrator can manage positions."
+        );
+
+        window.location.replace(
+            "dashboard.html"
+        );
+
+    }
+
+
+    // ==========================================
+    // SELECTED ELECTION
+    // ==========================================
+
+    let selectedElection =
+        JSON.parse(
+            localStorage.getItem(
+                "selectedElection"
+            )
+        );
+
+
+    if (!selectedElection) {
+
+        alert(
+            "Please select an election first."
+        );
+
+        window.location.replace(
+            "manage-election.html"
+        );
+
+    }
+
+
+    // ==========================================
+    // CURRENT POSITIONS
+    // ==========================================
+
+    let positions = [];
+
+
+    // ==========================================
+    // DISPLAY SELECTED ELECTION
+    // ==========================================
+
+    document.getElementById(
+        "electionName"
+    ).innerText =
+        selectedElection.name ||
+        "Selected Election";
+
+
+    // ==========================================
+    // LOAD POSITIONS
+    // ==========================================
+
+    async function loadPositions() {
+
+        const positionList =
+            document.getElementById(
+                "positionList"
+            );
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/positions/election/${selectedElection.id}`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to load positions."
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            positions =
+                Array.isArray(data)
+                    ? data
+                    : [];
+
+
+            displayPositions();
+
+
+        } catch (error) {
+
+            console.error(
+                "Position loading error:",
+                error
+            );
+
+
+            positionList.innerHTML = `
+
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        ⚠️
+                    </div>
+
+                    <p>
+                        Unable to load positions.
+                    </p>
+
+                    <p style="margin-top:8px;">
+                        Please check whether Spring Boot is running.
+                    </p>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+
+    // ==========================================
+    // ADD POSITION
+    // ==========================================
+
+    document.getElementById(
+        "positionForm"
+    ).addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const nameInput =
+                document.getElementById(
+                    "positionName"
+                );
+
+
+            const seatsInput =
+                document.getElementById(
+                    "positionSeats"
+                );
+
+
+            const message =
+                document.getElementById(
+                    "message"
+                );
+
+
+            const positionName =
+                nameInput.value.trim();
+
+
+            const seats =
+                parseInt(
+                    seatsInput.value
+                );
+
+
+            // Validation
+
+            if (!positionName) {
+
+                showMessage(
+                    "Please enter a position name.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            if (!seats || seats < 1) {
+
+                showMessage(
+                    "Number of winners/seats must be at least 1.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            // Duplicate check
+
+            const duplicate =
+                positions.some(
+                    position =>
+                        position.name &&
+                        position.name
+                            .toLowerCase() ===
+                        positionName
+                            .toLowerCase()
+                );
+
+
+            if (duplicate) {
+
+                showMessage(
+                    "This position already exists.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                showMessage(
+                    "Saving position...",
+                    ""
+                );
+
+
+                const response =
+                    await fetch(
+                        `${API}/positions`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    name:
+                                        positionName,
+
+                                    electionId:
+                                        Number(
+                                            selectedElection.id
+                                        )
+
+                                })
+
+                        }
+                    );
+
+
+                const resultText =
+                    await response.text();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        resultText ||
+                        "Failed to save position."
+                    );
+
+                }
+
+
+                let savedPosition;
+
+                try {
+
+                    savedPosition =
+                        JSON.parse(
+                            resultText
+                        );
+
+                } catch {
+
+                    savedPosition = {
+                        name: positionName
+                    };
+
+                }
+
+
+                nameInput.value = "";
+
+                seatsInput.value = 1;
+
+
+                showMessage(
+                    "Position added successfully!",
+                    "success"
+                );
+
+
+                await loadPositions();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Add position error:",
+                    error
+                );
+
+
+                showMessage(
+                    "Error: " +
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+
+    // ==========================================
+    // DISPLAY POSITIONS
+    // ==========================================
+
+    function displayPositions() {
+
+        const positionList =
+            document.getElementById(
+                "positionList"
+            );
+
+
+        const positionCount =
+            document.getElementById(
+                "positionCount"
+            );
+
+
+        positionList.innerHTML = "";
+
+
+        positionCount.textContent =
+            `${positions.length} Position${positions.length !== 1 ? "s" : ""}`;
+
+
+        if (positions.length === 0) {
+
+            positionList.innerHTML = `
+
+                <div class="empty-state">
+
+                    <div class="empty-state-icon">
+                        🏛️
+                    </div>
+
+                    <p>
+                        No positions added yet.
+                    </p>
+
+                    <p style="margin-top:8px;">
+                        Add the first position using the form.
+                    </p>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        positions.forEach(
+            function(position, index) {
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                card.className =
+                    "position-card";
+
+
+                card.innerHTML = `
+
+                    <div class="position-top">
+
+                        <div>
+
+                            <div class="position-number">
+                                POSITION ${index + 1}
+                            </div>
+
+                            <div class="position-title">
+                                ${escapeHTML(
+                                    position.name
+                                )}
+                            </div>
+
+                        </div>
+
+                        <div class="position-id">
+                            ID: ${escapeHTML(
+                                position.id
+                            )}
+                        </div>
+
+                    </div>
+
+
+                    <div class="position-info">
+
+                        <div class="info-box">
+
+                            <span class="info-label">
+                                Winners / Seats
+                            </span>
+
+                            <span class="info-value">
+                                ${position.seats || 1}
+                            </span>
+
+                        </div>
+
+
+                        <div class="info-box">
+
+                            <span class="info-label">
+                                Election
+                            </span>
+
+                            <span class="info-value">
+                                ${escapeHTML(
+                                    selectedElection.name
+                                )}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="position-actions">
+
+                        <button
+                            type="button"
+                            class="edit-btn"
+                            onclick="editPosition(${index})">
+
+                            Edit
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            class="delete-btn"
+                            onclick="deletePosition(${index})">
+
+                            Delete
+
+                        </button>
+
+                    </div>
+
+                `;
+
+
+                positionList.appendChild(
+                    card
+                );
+
+            }
+        );
+
+    }
+
+
+    // ==========================================
+    // EDIT POSITION
+    // ==========================================
+
+    async function editPosition(index) {
+
+        const position =
+            positions[index];
+
+
+        if (!position) {
+            return;
+        }
+
+
+        const newName =
+            prompt(
+                "Enter the new position name:",
+                position.name
+            );
+
+
+        if (newName === null) {
+            return;
+        }
+
+
+        const trimmedName =
+            newName.trim();
+
+
+        if (!trimmedName) {
+
+            alert(
+                "Position name cannot be empty."
+            );
+
+            return;
+
+        }
+
+
+        const duplicate =
+            positions.some(
+                function(item, itemIndex) {
+
+                    return (
+                        itemIndex !== index &&
+                        item.name &&
+                        item.name
+                            .toLowerCase() ===
+                        trimmedName
+                            .toLowerCase()
+                    );
+
+                }
+            );
+
+
+        if (duplicate) {
+
+            alert(
+                "This position already exists."
+            );
+
+            return;
+
+        }
+
+
+        const newSeats =
+            prompt(
+                "Enter the number of winners/seats:",
+                position.seats || 1
+            );
+
+
+        if (newSeats === null) {
+            return;
+        }
+
+
+        const seats =
+            parseInt(newSeats);
+
+
+        if (!seats || seats < 1) {
+
+            alert(
+                "Number of winners/seats must be at least 1."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/positions/${position.id}`,
+                    {
+
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                name:
+                                    trimmedName,
+
+                                electionId:
+                                    Number(
+                                        selectedElection.id
+                                    )
+
+                            })
+
+                    }
+                );
+
+
+            const resultText =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    resultText ||
+                    "Failed to update position."
+                );
+
+            }
+
+
+            alert(
+                "Position updated successfully."
+            );
+
+
+            await loadPositions();
+
+
+        } catch (error) {
+
+            console.error(
+                "Update position error:",
+                error
+            );
+
+
+            alert(
+                "Error updating position: " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // DELETE POSITION
+    // ==========================================
+
+    async function deletePosition(index) {
+
+        const position =
+            positions[index];
+
+
+        if (!position) {
+            return;
+        }
+
+
+        const confirmDelete =
+            confirm(
+                "Are you sure you want to delete the position '" +
+                position.name +
+                "'?"
+            );
+
+
+        if (!confirmDelete) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/positions/${position.id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            const resultText =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    resultText ||
+                    "Failed to delete position."
+                );
+
+            }
+
+
+            alert(
+                "Position deleted successfully."
+            );
+
+
+            await loadPositions();
+
+
+        } catch (error) {
+
+            console.error(
+                "Delete position error:",
+                error
+            );
+
+
+            alert(
+                "Error deleting position: " +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // MESSAGE
+    // ==========================================
+
+    function showMessage(
+        text,
+        type
+    ) {
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+
+        message.className =
+            "message";
+
+
+        message.textContent =
+            text;
+
+
+        if (type === "success") {
+
+            message.classList.add(
+                "success"
+            );
+
+        }
+
+        else if (type === "error") {
+
+            message.classList.add(
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // ==========================================
+    // ESCAPE HTML
+    // ==========================================
+
+    function escapeHTML(value) {
+
+        return String(
+            value ?? ""
+        )
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    // ==========================================
+    // BACK TO DASHBOARD
+    // ==========================================
+
+    function goBack() {
+
+        window.location.href =
+            "admin-dashboard.html";
+
+    }
+
+
+    // ==========================================
+    // INITIAL LOAD
+    // ==========================================
+
+    loadPositions();
+
+</script>
+
+</body>
+
+</html>

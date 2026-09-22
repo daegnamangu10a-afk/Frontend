@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ELECTO - OTP Verification</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- Background Decoration -->
+    <div class="circle circle-one"></div>
+    <div class="circle circle-two"></div>
+
+
+    <main class="login-container">
+
+        <!-- Left Branding Section -->
+        <section class="brand-section">
+
+            <div class="brand-logo">
+
+                <div class="logo-icon">E</div>
+
+                <span>ELECTO</span>
+
+            </div>
+
+
+            <div class="brand-content">
+
+                <span class="small-label">
+                    SECURE AUTHENTICATION
+                </span>
+
+                <h1>
+                    Verify.<br>
+                    <span>Vote Securely.</span>
+                </h1>
+
+                <p>
+                    Your identity is protected with secure
+                    one-time password authentication before
+                    accessing the election platform.
+                </p>
+
+            </div>
+
+
+            <div class="brand-footer">
+
+                <span>●</span>
+
+                Secure Digital Voting
+
+            </div>
+
+        </section>
+
+
+        <!-- OTP Section -->
+        <section class="login-section">
+
+            <div class="login-card">
+
+                <!-- OTP Icon -->
+                <div class="card-icon">
+                    🔐
+                </div>
+
+
+                <!-- Heading -->
+                <div class="welcome-text">
+
+                    <span>
+                        IDENTITY VERIFICATION
+                    </span>
+
+                    <h2>
+                        Verify Your Email
+                    </h2>
+
+                </div>
+
+
+                <!-- Description -->
+                <p class="login-description">
+
+                    Enter the 6-digit OTP sent to your
+                    registered email address to continue.
+
+                </p>
+
+
+                <!-- OTP Form -->
+                <form onsubmit="event.preventDefault(); verifyOTP();">
+
+                    <label for="otp">
+                        One-Time Password
+                    </label>
+
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">
+                            #
+                        </span>
+
+                        <input
+                            type="text"
+                            id="otp"
+                            placeholder="Enter 6-digit OTP"
+                            maxlength="6"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- Verify Button -->
+                    <button
+                        type="submit"
+                        class="continue-btn"
+                    >
+
+                        <span>
+                            Verify & Continue
+                        </span>
+
+                        <span class="arrow">
+                            →
+                        </span>
+
+                    </button>
+
+                </form>
+
+
+                <!-- Message -->
+                <div id="otpMessage"></div>
+
+
+                <!-- Security Note -->
+                <div class="security-note">
+
+                    <span class="shield">
+                        🛡
+                    </span>
+
+                    <div>
+
+                        <strong>
+                            Secure Verification
+                        </strong>
+
+                        <p>
+                            Your OTP is confidential.
+                            Never share it with anyone.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Footer -->
+            <div class="copyright">
+
+                © 2026 ELECTO · Secure Election Management System
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Details - Electo</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        header span {
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            margin-bottom: 8px;
+            color: #111827;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .details-card {
+            background: white;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .election-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #111827;
+            margin-bottom: 15px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        .upcoming {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .completed {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .detail-box {
+            background: #f8fafc;
+            padding: 18px;
+            border-radius: 10px;
+        }
+
+        .detail-box strong {
+            display: block;
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .detail-box span {
+            font-size: 16px;
+            color: #111827;
+        }
+
+        .description-box {
+            margin-top: 22px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+
+        .description-box strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+
+        .action-buttons {
+            margin-top: 25px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .history-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .dashboard-btn {
+            background: #111827;
+            color: white;
+        }
+
+        .empty {
+            background: white;
+            padding: 35px;
+            text-align: center;
+            border-radius: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 650px) {
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .election-title {
+                font-size: 22px;
+            }
+
+            .details-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>
+        Electo - Election Management System
+    </h1>
+
+    <span id="adminEmail"></span>
+
+</header>
+
+
+<div class="container">
+
+    <h2 class="page-title">
+        Election Details
+    </h2>
+
+    <p class="subtitle">
+        View complete information about this election.
+    </p>
+
+
+    <div id="electionContainer"></div>
+
+</div>
+
+
+<script>
+
+    // ==============================
+    // ADMIN LOGIN CHECK
+    // ==============================
+
+    const userEmail =
+        localStorage.getItem("userEmail");
+
+    const userRole =
+        localStorage.getItem("userRole");
+
+
+    if (!userEmail || userRole !== "ADMIN") {
+
+        alert("Admin access required.");
+
+        window.location.href = "index.html";
+
+    }
+
+
+    document.getElementById("adminEmail").textContent =
+        "Admin: " + userEmail;
+
+
+    // ==============================
+    // LOAD SELECTED ELECTION
+    // ==============================
+
+    function loadElection() {
+
+        const selectedElection =
+            JSON.parse(
+                localStorage.getItem("selectedElection")
+            );
+
+
+        const container =
+            document.getElementById("electionContainer");
+
+
+        if (!selectedElection) {
+
+            container.innerHTML = `
+                <div class="empty">
+
+                    <h3>
+                        No Election Selected
+                    </h3>
+
+                    <p>
+                        Please go back to Election History
+                        and select an election.
+                    </p>
+
+                    <button
+                        class="history-btn"
+                        onclick="goToHistory()">
+
+                        Go to Election History
+
+                    </button>
+
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        const status =
+            getElectionStatus(selectedElection);
+
+
+        let statusClass = "completed";
+
+        if (status === "Upcoming") {
+            statusClass = "upcoming";
+        }
+
+        if (status === "Active") {
+            statusClass = "active";
+        }
+
+
+        container.innerHTML = `
+
+            <div class="details-card">
+
+                <div class="election-title">
+
+                    ${escapeHTML(
+                        selectedElection.name ||
+                        "Unnamed Election"
+                    )}
+
+                </div>
+
+
+                <span class="status ${statusClass}">
+
+                    ${status}
+
+                </span>
+
+
+                <div class="details-grid">
+
+
+                    <div class="detail-box">
+
+                        <strong>
+                            Created Date
+                        </strong>
+
+                        <span>
+                            ${formatDate(
+                                selectedElection.createdDate ||
+                                selectedElection.startDate
+                            )}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <strong>
+                            Created By
+                        </strong>
+
+                        <span>
+                            ${escapeHTML(
+                                selectedElection.createdBy ||
+                                "-"
+                            )}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <strong>
+                            Start Date
+                        </strong>
+
+                        <span>
+                            ${formatDate(
+                                selectedElection.startDate
+                            )}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <strong>
+                            End Date
+                        </strong>
+
+                        <span>
+                            ${formatDate(
+                                selectedElection.endDate
+                            )}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <strong>
+                            Maximum Positions Per Voter
+                        </strong>
+
+                        <span>
+                            ${selectedElection.maxPositions || "-"}
+                        </span>
+
+                    </div>
+
+
+                    <div class="detail-box">
+
+                        <strong>
+                            Election ID
+                        </strong>
+
+                        <span>
+                            ${escapeHTML(
+                                selectedElection.id || "-"
+                            )}
+                        </span>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="description-box">
+
+                    <strong>
+                        Election Description
+                    </strong>
+
+                    <div>
+                        ${escapeHTML(
+                            selectedElection.description ||
+                            "No description provided."
+                        )}
+                    </div>
+
+                </div>
+
+
+                <div class="action-buttons">
+
+                    <button
+                        class="history-btn"
+                        onclick="goToHistory()">
+
+                        Back to Election History
+
+                    </button>
+
+
+                    <button
+                        class="dashboard-btn"
+                        onclick="goToDashboard()">
+
+                        Back to Dashboard
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+
+    // ==============================
+    // ELECTION STATUS
+    // ==============================
+
+    function getElectionStatus(election) {
+
+        const now = new Date();
+
+        const start =
+            new Date(election.startDate);
+
+        const end =
+            new Date(election.endDate);
+
+
+        if (now < start) {
+
+            return "Upcoming";
+
+        }
+
+        if (now > end) {
+
+            return "Completed";
+
+        }
+
+        return "Active";
+
+    }
+
+
+    // ==============================
+    // DATE FORMAT
+    // ==============================
+
+    function formatDate(dateValue) {
+
+        if (!dateValue) {
+            return "-";
+        }
+
+        const date =
+            new Date(dateValue);
+
+
+        if (isNaN(date.getTime())) {
+            return dateValue;
+        }
+
+
+        return date.toLocaleDateString(
+            "en-IN",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            }
+        );
+
+    }
+
+
+    // ==============================
+    // SECURITY
+    // ==============================
+
+    function escapeHTML(value) {
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    // ==============================
+    // NAVIGATION
+    // ==============================
+
+    function goToHistory() {
+
+        window.location.href =
+            "election-history.html";
+
+    }
+
+
+    function goToDashboard() {
+
+        window.location.href =
+            "admin-dashboard.html";
+
+    }
+
+
+    // ==============================
+    // START
+    // ==============================
+
+    loadElection();
+
+</script>
+
+</body>
+</html>
