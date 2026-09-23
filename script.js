@@ -13,7 +13,7 @@ function sendOTP() {
     message.innerText = "Sending OTP...";
 
     const url =
-        "https://electo-backend-xi.vercel.app/api/otp/send?email=" +
+        "https://electo-7p79.onrender.com/api/otp/send?email=" +
         encodeURIComponent(email);
 
     fetch(url, {
@@ -83,7 +83,7 @@ function verifyOTP() {
     message.innerText = "Verifying OTP...";
 
     const url =
-        "https://electo-backend-xi.vercel.app/api/otp/verify?email=" +
+        "https://electo-7p79.onrender.com/api/otp/verify?email=" +
         encodeURIComponent(email) +
         "&otp=" +
         encodeURIComponent(otp);
