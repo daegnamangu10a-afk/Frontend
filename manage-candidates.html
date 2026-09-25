@@ -8,7 +8,6 @@
     <title>Electo - Manage Candidates</title>
 
     <style>
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -163,7 +162,6 @@
             font-size: 14px;
             color: #6b7280;
         }
-
     </style>
 
 </head>
@@ -171,1250 +169,494 @@
 
 <body>
 
-<div class="container">
+    <div class="container">
 
 
-    <!-- =============================== -->
-    <!-- HEADER -->
-    <!-- =============================== -->
+        <!-- =============================== -->
+        <!-- HEADER -->
+        <!-- =============================== -->
 
-    <div class="header">
+        <div class="header">
 
-        <div class="logo">
-            ELECTO
-        </div>
-
-        <h1>
-            Manage Candidates
-        </h1>
-
-        <div
-            class="email"
-            id="adminEmail">
-        </div>
-
-    </div>
-
-
-    <!-- =============================== -->
-    <!-- SELECTED ELECTION -->
-    <!-- =============================== -->
-
-    <div class="card">
-
-        <h2>
-            Selected Election
-        </h2>
-
-        <div
-            class="election-box"
-            id="electionDetails">
-
-            Loading election...
-
-        </div>
-
-    </div>
-
-
-    <!-- =============================== -->
-    <!-- ADD CANDIDATE -->
-    <!-- =============================== -->
-
-    <div class="card">
-
-        <h2>
-            Add Candidate
-        </h2>
-
-
-        <form id="candidateForm">
-
-
-            <!-- CANDIDATE NAME -->
-
-            <label for="candidateName">
-                Candidate Name
-            </label>
-
-            <input
-                type="text"
-                id="candidateName"
-                placeholder="Enter candidate name"
-                required
-            >
-
-
-            <!-- EMAIL -->
-
-            <label for="candidateEmail">
-                Candidate Email
-            </label>
-
-            <input
-                type="email"
-                id="candidateEmail"
-                placeholder="Enter candidate email"
-            >
-
-
-            <!-- POSITION -->
-
-            <label for="position">
-                Position
-            </label>
-
-            <select
-                id="position"
-                required
-            >
-
-                <option value="">
-                    Select Position
-                </option>
-
-            </select>
-
-
-            <!-- PHOTO -->
-
-            <label for="photo">
-                Profile Photo
-            </label>
-
-            <input
-                type="file"
-                id="photo"
-                accept="image/*"
-            >
-
-            <div
-                class="upload-status"
-                id="uploadStatus">
+            <div class="logo">
+                ELECTO
             </div>
 
+            <h1>
+                Manage Candidates
+            </h1>
 
-            <!-- BIOGRAPHY -->
+            <div class="email" id="adminEmail">
+            </div>
 
-            <label for="biography">
-                Candidate Biography
-            </label>
-
-            <textarea
-                id="biography"
-                placeholder="Enter candidate biography"
-            ></textarea>
+        </div>
 
 
-            <!-- SUBMIT -->
+        <!-- =============================== -->
+        <!-- SELECTED ELECTION -->
+        <!-- =============================== -->
 
-            <button
-                type="submit"
-                id="addCandidateButton">
+        <div class="card">
 
+            <h2>
+                Selected Election
+            </h2>
+
+            <div class="election-box" id="electionDetails">
+
+                Loading election...
+
+            </div>
+
+        </div>
+
+
+        <!-- =============================== -->
+        <!-- ADD CANDIDATE -->
+        <!-- =============================== -->
+
+        <div class="card">
+
+            <h2>
                 Add Candidate
-
-            </button>
-
-        </form>
+            </h2>
 
 
-        <div
-            class="message"
-            id="message">
+            <form id="candidateForm">
+
+
+                <!-- CANDIDATE NAME -->
+
+                <label for="candidateName">
+                    Candidate Name
+                </label>
+
+                <input type="text" id="candidateName" placeholder="Enter candidate name" required>
+
+
+                <!-- EMAIL -->
+
+                <label for="candidateEmail">
+                    Candidate Email
+                </label>
+
+                <input type="email" id="candidateEmail" placeholder="Enter candidate email">
+
+
+                <!-- POSITION -->
+
+                <label for="position">
+                    Position
+                </label>
+
+                <select id="position" required>
+
+                    <option value="">
+                        Select Position
+                    </option>
+
+                </select>
+
+
+                <!-- PHOTO -->
+
+                <label for="photo">
+                    Profile Photo
+                </label>
+
+                <input type="file" id="photo" accept="image/*">
+
+                <div class="upload-status" id="uploadStatus">
+                </div>
+
+
+                <!-- BIOGRAPHY -->
+
+                <label for="biography">
+                    Candidate Biography
+                </label>
+
+                <textarea id="biography" placeholder="Enter candidate biography"></textarea>
+
+
+                <!-- SUBMIT -->
+
+                <button type="submit" id="addCandidateButton">
+
+                    Add Candidate
+
+                </button>
+
+            </form>
+
+
+            <div class="message" id="message">
+            </div>
+
         </div>
+
+
+        <!-- =============================== -->
+        <!-- REGISTERED CANDIDATES -->
+        <!-- =============================== -->
+
+        <div class="card">
+
+            <h2>
+                Registered Candidates
+            </h2>
+
+            <div id="candidateList">
+
+                <p class="empty">
+                    Loading candidates...
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =============================== -->
+        <!-- BACK -->
+        <!-- =============================== -->
+
+        <button class="back-btn" onclick="goBack()">
+
+            Back to Dashboard
+
+        </button>
+
 
     </div>
 
 
-    <!-- =============================== -->
-    <!-- REGISTERED CANDIDATES -->
-    <!-- =============================== -->
+    <script>
+        const API = "https://electo-7p79.onrender.com/api";
 
-    <div class="card">
+        let currentElection = null;
 
-        <h2>
-            Registered Candidates
-        </h2>
+        document.getElementById("adminEmail").innerText = localStorage.getItem("userEmail") || "";
 
-        <div id="candidateList">
+        const role = localStorage.getItem("userRole");
 
-            <p class="empty">
-                Loading candidates...
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- =============================== -->
-    <!-- BACK -->
-    <!-- =============================== -->
-
-    <button
-        class="back-btn"
-        onclick="goBack()">
-
-        Back to Dashboard
-
-    </button>
-
-
-</div>
-
-
-<script>
-
-
-// ======================================================
-// API
-// ======================================================
-
-const API =
-    "https://electo-7p79.onrender.com/api";
-
-
-// ======================================================
-// CURRENT ELECTION
-// ======================================================
-
-let currentElection = null;
-
-
-// ======================================================
-// ADMIN EMAIL
-// ======================================================
-
-document
-    .getElementById("adminEmail")
-    .innerText =
-    localStorage.getItem("userEmail") || "";
-
-
-// ======================================================
-// ADMIN ACCESS CHECK
-// ======================================================
-
-const role =
-    localStorage.getItem("userRole");
-
-
-if (role !== "ADMIN") {
-
-    alert(
-        "Admin access required."
-    );
-
-    window.location.href =
-        "index.html";
-}
-
-
-// ======================================================
-// LOAD SELECTED ELECTION
-// ======================================================
-
-async function loadElection() {
-
-    try {
-
-        const response =
-            await fetch(
-                API + "/elections"
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load elections."
-            );
+        if (role !== "ADMIN") {
+            alert("Admin access required.");
+            window.location.href = "index.html";
         }
 
-
-        const elections =
-            await response.json();
-
-
-        if (
-            !elections ||
-            elections.length === 0
-        ) {
-
-            document
-                .getElementById(
-                    "electionDetails"
-                )
-                .innerText =
-                "No elections available.";
-
-            return;
-        }
-
-
-        // Get selected election
-        const savedElection =
-            JSON.parse(
-                localStorage.getItem(
-                    "selectedElection"
-                )
-            );
-
-
-        // Find selected election
-        if (
-            savedElection &&
-            savedElection.id
-        ) {
-
-            currentElection =
-                elections.find(
-                    election =>
-                        String(election.id) ===
-                        String(savedElection.id)
-                );
-        }
-
-
-        // Fallback
-        if (!currentElection) {
-
-            currentElection =
-                elections[
-                    elections.length - 1
-                ];
-        }
-
-
-        // Save selected election
-        localStorage.setItem(
-            "selectedElection",
-            JSON.stringify(
-                currentElection
-            )
-        );
-
-
-        // Display election
-        document
-            .getElementById(
-                "electionDetails"
-            )
-            .innerText =
-            currentElection.name +
-            " (ID: " +
-            currentElection.id +
-            ")";
-
-
-        // Load positions
-        await loadPositions();
-
-
-        // Load candidates
-        await loadCandidates();
-
-
-    } catch (error) {
-
-        console.error(
-            "Election loading error:",
-            error
-        );
-
-
-        document
-            .getElementById(
-                "electionDetails"
-            )
-            .innerText =
-            "Unable to load election.";
-
-    }
-
-}
-
-
-// ======================================================
-// LOAD POSITIONS
-// ======================================================
-
-async function loadPositions() {
-
-    const positionSelect =
-        document.getElementById(
-            "position"
-        );
-
-
-    positionSelect.innerHTML =
-        '<option value="">Select Position</option>';
-
-
-    if (!currentElection) {
-
-        return;
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                API +
-                "/positions/election/" +
-                currentElection.id
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load positions."
-            );
-        }
-
-
-        const positions =
-            await response.json();
-
-
-        console.log(
-            "Backend positions:",
-            positions
-        );
-
-
-        if (
-            !positions ||
-            positions.length === 0
-        ) {
-
-            positionSelect.innerHTML =
-                '<option value="">No positions added yet</option>';
-
-            return;
-        }
-
-
-        // Read localStorage for seat information
-        const elections =
-            JSON.parse(
-                localStorage.getItem(
-                    "elections"
-                )
-            ) || [];
-
-
-        const selectedElection =
-            elections.find(
-                election =>
-                    String(election.id) ===
-                    String(currentElection.id)
-            );
-
-
-        const localPositions =
-            selectedElection
-                ? selectedElection.positions || []
-                : [];
-
-
-        // Add backend positions
-        positions.forEach(
-            position => {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                // REAL DATABASE POSITION ID
-                option.value =
-                    position.id;
-
-
-                // Find matching local position
-                const localPosition =
-                    localPositions.find(
-                        p =>
-                            String(p.name)
-                                .trim()
-                                .toLowerCase() ===
-                            String(position.name)
-                                .trim()
-                                .toLowerCase()
-                    );
-
-
-                const seats =
-                    localPosition &&
-                    localPosition.seats
-                        ? localPosition.seats
-                        : 1;
-
-
-                option.textContent =
-                    position.name +
-                    " (" +
-                    seats +
-                    " seat" +
-                    (
-                        seats > 1
-                            ? "s"
-                            : ""
-                    ) +
-                    ")";
-
-
-                positionSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Unable to load positions:",
-            error
-        );
-
-
-        positionSelect.innerHTML =
-            '<option value="">Unable to load positions</option>';
-
-    }
-
-}
-
-
-// ======================================================
-// UPLOAD CANDIDATE PHOTO
-// ======================================================
-
-async function uploadCandidatePhoto(
-    photoFile
-) {
-
-    if (!photoFile) {
-
-        return "";
-    }
-
-
-    // Check file type
-    if (
-        !photoFile.type.startsWith(
-            "image/"
-        )
-    ) {
-
-        throw new Error(
-            "Please select a valid image file."
-        );
-    }
-
-
-    // Optional size limit: 5 MB
-    const maxSize =
-        5 * 1024 * 1024;
-
-
-    if (
-        photoFile.size > maxSize
-    ) {
-
-        throw new Error(
-            "Image size must be less than 5 MB."
-        );
-    }
-
-
-    const formData =
-        new FormData();
-
-
-    // IMPORTANT:
-    // The backend expects "file"
-    formData.append(
-        "file",
-        photoFile
-    );
-
-
-    const response =
-        await fetch(
-            API +
-            "/candidates/upload-photo",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-
-
-    const result =
-        await response.text();
-
-
-    console.log(
-        "Photo upload response:",
-        result
-    );
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            result ||
-            "Photo upload failed."
-        );
-    }
-
-
-    return result;
-
-}
-
-
-// ======================================================
-// ADD CANDIDATE
-// ======================================================
-
-document
-    .getElementById(
-        "candidateForm"
-    )
-    .addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-
-            // Check election
-            if (!currentElection) {
-
-                alert(
-                    "No election selected."
-                );
-
-                return;
-            }
-
-
-            const message =
-                document.getElementById(
-                    "message"
-                );
-
-
-            const uploadStatus =
-                document.getElementById(
-                    "uploadStatus"
-                );
-
-
-            const addButton =
-                document.getElementById(
-                    "addCandidateButton"
-                );
-
-
-            // Get form values
-            const name =
-                document
-                    .getElementById(
-                        "candidateName"
-                    )
-                    .value
-                    .trim();
-
-
-            const email =
-                document
-                    .getElementById(
-                        "candidateEmail"
-                    )
-                    .value
-                    .trim();
-
-
-            const positionId =
-                document
-                    .getElementById(
-                        "position"
-                    )
-                    .value;
-
-
-            const biography =
-                document
-                    .getElementById(
-                        "biography"
-                    )
-                    .value
-                    .trim();
-
-
-            const photoFile =
-                document
-                    .getElementById(
-                        "photo"
-                    )
-                    .files[0];
-
-
-            // ==========================================
-            // VALIDATION
-            // ==========================================
-
-            if (!name) {
-
-                alert(
-                    "Candidate name is required."
-                );
-
-                return;
-            }
-
-
-            if (!positionId) {
-
-                alert(
-                    "Please select a position."
-                );
-
-                return;
-            }
-
-
-            const numericPositionId =
-                Number(positionId);
-
-
-            if (
-                !Number.isInteger(
-                    numericPositionId
-                ) ||
-                numericPositionId <= 0
-            ) {
-
-                alert(
-                    "Invalid Position ID. Please reload the page and try again."
-                );
-
-                return;
-            }
-
-
-            // ==========================================
-            // DISABLE BUTTON
-            // ==========================================
-
-            addButton.disabled =
-                true;
-
-
-            message.innerText = "";
-
-
+        async function loadElection() {
             try {
-
-                // ==========================================
-                // UPLOAD PHOTO FIRST
-                // ==========================================
-
-                let photoUrl = "";
-
-
-                if (photoFile) {
-
-                    uploadStatus.innerText =
-                        "Uploading photo...";
-
-
-                    photoUrl =
-                        await uploadCandidatePhoto(
-                            photoFile
-                        );
-
-
-                    uploadStatus.innerText =
-                        "Photo uploaded successfully.";
-
-                } else {
-
-                    uploadStatus.innerText =
-                        "No photo selected.";
-                }
-
-
-                console.log(
-                    "Uploaded photo URL:",
-                    photoUrl
-                );
-
-
-                // ==========================================
-                // CREATE CANDIDATE OBJECT
-                // ==========================================
-
-                const candidate = {
-
-                    name:
-                        name,
-
-                    email:
-                        email,
-
-                    electionId:
-                        Number(
-                            currentElection.id
-                        ),
-
-                    positionId:
-                        numericPositionId,
-
-                    biography:
-                        biography,
-
-                    photo:
-                        photoUrl
-
-                };
-
-
-                console.log(
-                    "Candidate:",
-                    candidate
-                );
-
-
-                // ==========================================
-                // SAVE CANDIDATE
-                // ==========================================
-
-                message.innerText =
-                    "Saving candidate...";
-
-
-                const response =
-                    await fetch(
-                        API +
-                        "/candidates",
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    candidate
-                                )
-                        }
-                    );
-
-
-                const result =
-                    await response.text();
-
-
-                console.log(
-                    "Candidate response:",
-                    result
-                );
-
+                const response = await fetch(API + "/elections");
 
                 if (!response.ok) {
-
-                    throw new Error(
-                        result ||
-                        "Unable to add candidate."
-                    );
+                    throw new Error("Unable to load elections.");
                 }
 
+                const elections = await response.json();
 
-                // ==========================================
-                // SUCCESS
-                // ==========================================
+                if (!elections || elections.length === 0) {
+                    document.getElementById("electionDetails").innerText = "No elections available.";
+                    return;
+                }
 
-                message.innerText =
-                    "Candidate added successfully.";
+                const savedElection = JSON.parse(localStorage.getItem("selectedElection"));
 
+                if (savedElection && savedElection.id) {
+                    currentElection = elections.find(election => String(election.id) === String(savedElection.id));
+                }
 
-                message.style.color =
-                    "green";
+                if (!currentElection) {
+                    currentElection = elections[elections.length - 1];
+                }
 
+                localStorage.setItem("selectedElection", JSON.stringify(currentElection));
 
-                uploadStatus.innerText =
-                    "";
+                document.getElementById("electionDetails").innerText = currentElection.name + " (ID: " + currentElection.id + ")";
 
-
-                // Reset form
-                document
-                    .getElementById(
-                        "candidateForm"
-                    )
-                    .reset();
-
-
-                // Reload candidates
+                await loadPositions();
                 await loadCandidates();
-
-
             } catch (error) {
+                console.error("Election loading error:", error);
+                document.getElementById("electionDetails").innerText = "Unable to load election.";
+            }
+        }
 
-                console.error(
-                    "Candidate error:",
-                    error
-                );
+        async function loadPositions() {
+            const positionSelect = document.getElementById("position");
+            positionSelect.innerHTML = '<option value="">Select Position</option>';
 
-
-                message.innerText =
-                    "Error: " +
-                    error.message;
-
-
-                message.style.color =
-                    "red";
-
-            } finally {
-
-                addButton.disabled =
-                    false;
-
+            if (!currentElection) {
+                return;
             }
 
-        }
-    );
+            try {
+                const response = await fetch(API + "/positions/election/" + currentElection.id);
 
+                if (!response.ok) {
+                    throw new Error("Unable to load positions.");
+                }
 
-// ======================================================
-// LOAD CANDIDATES
-// ======================================================
+                const positions = await response.json();
 
-async function loadCandidates() {
+                console.log("Backend positions:", positions);
 
-    const list =
-        document.getElementById(
-            "candidateList"
-        );
+                if (!positions || positions.length === 0) {
+                    positionSelect.innerHTML = '<option value="">No positions added yet</option>';
+                    return;
+                }
 
+                const elections = JSON.parse(localStorage.getItem("elections")) || [];
+                const selectedElection = elections.find(election => String(election.id) === String(currentElection.id));
+                const localPositions = selectedElection ? selectedElection.positions || [] : [];
 
-    if (!currentElection) {
+                positions.forEach(position => {
+                    const option = document.createElement("option");
+                    option.value = position.id;
 
-        list.innerHTML =
-            "<p class='empty'>No election selected.</p>";
-
-        return;
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                API +
-                "/candidates/election/" +
-                currentElection.id
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load candidates."
-            );
-        }
-
-
-        const candidates =
-            await response.json();
-
-
-        if (
-            !candidates ||
-            candidates.length === 0
-        ) {
-
-            list.innerHTML =
-                "<p class='empty'>No candidates added yet.</p>";
-
-            return;
-        }
-
-
-        list.innerHTML = "";
-
-
-        candidates.forEach(
-            candidate => {
-
-                const div =
-                    document.createElement(
-                        "div"
+                    const localPosition = localPositions.find(
+                        p => String(p.name).trim().toLowerCase() === String(position.name).trim().toLowerCase()
                     );
 
+                    const seats = localPosition && localPosition.seats ? localPosition.seats : 1;
 
-                div.className =
-                    "candidate";
-
-
-                // ==========================================
-                // PHOTO URL
-                // ==========================================
-
-                let photoHTML = "";
-
-
-                if (candidate.photo) {
-
-                    let photoUrl =
-                        candidate.photo;
-
-
-                    /*
-                     * New candidates:
-                     *
-                     * /uploads/UUID.jpg
-                     */
-
-                    if (photoUrl.startsWith("/uploads/")) {
-                        photoUrl = API.replace("/api", "") + photoUrl;
-                    }
-
-}
-
-
-                    /*
-                     * If the database contains
-                     * only an old filename such as:
-                     *
-                     * Screenshot 2026.png
-                     *
-                     * try /uploads/filename
-                     */
-
-                    else if (
-                        !photoUrl.startsWith(
-                            "http://"
-                        ) &&
-                        !photoUrl.startsWith(
-                            "https://"
-                        ) &&
-                        !photoUrl.startsWith(
-                            "/"
-                        )
-                    ) {
-
-                        photoUrl =
-                            "https://electo-7p79.onrender.com/uploads/" +
-                            encodeURIComponent(
-                                photoUrl
-                            );
-                    }
-
-
-                    photoHTML = `
-
-                        <img
-                            src="${photoUrl}"
-                            alt="Candidate Photo"
-                            class="candidate-photo"
-                            onerror="this.style.display='none';"
-                        >
-
-                    `;
-
-                }
-
-
-                // ==========================================
-                // CANDIDATE CARD
-                // ==========================================
-
-                div.innerHTML = `
-
-                    ${photoHTML}
-
-                    <h3>
-                        ${escapeHtml(
-                            candidate.name
-                        )}
-                    </h3>
-
-
-                    <p>
-                        <strong>Email:</strong>
-                        ${escapeHtml(
-                            candidate.email ||
-                            "Not provided"
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>Position ID:</strong>
-                        ${candidate.positionId}
-                    </p>
-
-
-                    <p>
-                        <strong>Biography:</strong>
-                        ${escapeHtml(
-                            candidate.biography ||
-                            "Not provided"
-                        )}
-                    </p>
-
-
-                    <p>
-                        <strong>Photo:</strong>
-                        ${escapeHtml(
-                            candidate.photo ||
-                            "Not provided"
-                        )}
-                    </p>
-
-
-                    <button
-                        class="delete-btn"
-                        onclick="deleteCandidate(${candidate.id})">
-
-                        Delete
-
-                    </button>
-
-                `;
-
-
-                list.appendChild(
-                    div
-                );
-
+                    option.textContent = position.name + " (" + seats + " seat" + (seats > 1 ? "s" : "") + ")";
+                    positionSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Unable to load positions:", error);
+                positionSelect.innerHTML = '<option value="">Unable to load positions</option>';
             }
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Candidate loading error:",
-            error
-        );
-
-
-        list.innerHTML =
-            "<p class='empty'>Unable to load candidates.</p>";
-    }
-
-}
-
-
-// ======================================================
-// DELETE CANDIDATE
-// ======================================================
-
-async function deleteCandidate(
-    id
-) {
-
-    if (
-        !confirm(
-            "Are you sure you want to delete this candidate?"
-        )
-    ) {
-
-        return;
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                API +
-                "/candidates/" +
-                id,
-                {
-                    method: "DELETE"
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                await response.text()
-            );
         }
 
+        async function uploadCandidatePhoto(photoFile) {
+            if (!photoFile) {
+                return "";
+            }
 
-        await loadCandidates();
+            if (!photoFile.type.startsWith("image/")) {
+                throw new Error("Please select a valid image file.");
+            }
 
+            const maxSize = 5 * 1024 * 1024;
+            if (photoFile.size > maxSize) {
+                throw new Error("Image size must be less than 5 MB.");
+            }
 
-    } catch (error) {
+            const formData = new FormData();
+            formData.append("file", photoFile);
 
-        alert(
-            "Unable to delete candidate: " +
-            error.message
-        );
-    }
+            const response = await fetch(API + "/candidates/upload-photo", {
+                method: "POST",
+                body: formData
+            });
 
-}
+            const result = await response.text();
+            console.log("Photo upload response:", result);
 
+            if (!response.ok) {
+                throw new Error(result || "Photo upload failed.");
+            }
 
-// ======================================================
-// ESCAPE HTML
-// ======================================================
+            return result;
+        }
 
-function escapeHtml(
-    value
-) {
+        document.getElementById("candidateForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
 
-    const div =
-        document.createElement(
-            "div"
-        );
+            if (!currentElection) {
+                alert("No election selected.");
+                return;
+            }
 
+            const message = document.getElementById("message");
+            const uploadStatus = document.getElementById("uploadStatus");
+            const addButton = document.getElementById("addCandidateButton");
 
-    div.textContent =
-        value;
+            const name = document.getElementById("candidateName").value.trim();
+            const email = document.getElementById("candidateEmail").value.trim();
+            const positionId = document.getElementById("position").value;
+            const biography = document.getElementById("biography").value.trim();
+            const photoFile = document.getElementById("photo").files[0];
 
+            if (!name) {
+                alert("Candidate name is required.");
+                return;
+            }
 
-    return div.innerHTML;
+            if (!positionId) {
+                alert("Please select a position.");
+                return;
+            }
 
-}
+            const numericPositionId = Number(positionId);
+            if (!Number.isInteger(numericPositionId) || numericPositionId <= 0) {
+                alert("Invalid Position ID. Please reload the page and try again.");
+                return;
+            }
 
+            addButton.disabled = true;
+            message.innerText = "";
 
-// ======================================================
-// BACK TO DASHBOARD
-// ======================================================
+            try {
+                let photoUrl = "";
 
-function goBack() {
+                if (photoFile) {
+                    uploadStatus.innerText = "Uploading photo...";
+                    photoUrl = await uploadCandidatePhoto(photoFile);
+                    uploadStatus.innerText = "Photo uploaded successfully.";
+                } else {
+                    uploadStatus.innerText = "No photo selected.";
+                }
 
-    window.location.href =
-        "admin-dashboard.html";
+                console.log("Uploaded photo URL:", photoUrl);
 
-}
+                const candidate = {
+                    name: name,
+                    email: email,
+                    electionId: Number(currentElection.id),
+                    positionId: numericPositionId,
+                    biography: biography,
+                    photo: photoUrl
+                };
 
+                console.log("Candidate:", candidate);
 
-// ======================================================
-// START APPLICATION
-// ======================================================
+                message.innerText = "Saving candidate...";
+                const response = await fetch(API + "/candidates", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(candidate)
+                });
 
-loadElection();
+                const result = await response.text();
+                console.log("Candidate response:", result);
 
-</script>
+                if (!response.ok) {
+                    throw new Error(result || "Unable to add candidate.");
+                }
+
+                message.innerText = "Candidate added successfully.";
+                message.style.color = "green";
+                uploadStatus.innerText = "";
+
+                document.getElementById("candidateForm").reset();
+                await loadCandidates();
+            } catch (error) {
+                console.error("Candidate error:", error);
+                message.innerText = "Error: " + error.message;
+                message.style.color = "red";
+            } finally {
+                addButton.disabled = false;
+            }
+        });
+
+        async function loadCandidates() {
+            const list = document.getElementById("candidateList");
+
+            if (!currentElection) {
+                list.innerHTML = "<p class='empty'>No election selected.</p>";
+                return;
+            }
+
+            try {
+                const response = await fetch(API + "/candidates/election/" + currentElection.id);
+
+                if (!response.ok) {
+                    throw new Error("Unable to load candidates.");
+                }
+
+                const candidates = await response.json();
+
+                if (!candidates || candidates.length === 0) {
+                    list.innerHTML = "<p class='empty'>No candidates added yet.</p>";
+                    return;
+                }
+
+                list.innerHTML = "";
+
+                candidates.forEach(candidate => {
+                    const div = document.createElement("div");
+                    div.className = "candidate";
+
+                    let photoUrl = "";
+                    let photoHTML = "";
+
+                    if (candidate.photo) {
+                        photoUrl = candidate.photo;
+
+                        if (photoUrl.startsWith("/uploads/")) {
+                            photoUrl = API.replace("/api", "") + photoUrl;
+                        }
+                        else if (!photoUrl.startsWith("http://") && !photoUrl.startsWith("https://") && !photoUrl.startsWith("/")) {
+                            photoUrl = "https://electo-7p79.onrender.com/uploads/" + encodeURIComponent(photoUrl);
+                        }
+
+                        photoHTML = `
+          <img
+            src="${photoUrl}"
+            alt="Candidate Photo"
+            class="candidate-photo"
+            onerror="this.style.display='none';"
+          >
+        `;
+                    }
+
+                    div.innerHTML = `
+        ${photoHTML}
+        <h3>${escapeHtml(candidate.name)}</h3>
+        <p><strong>Email:</strong> ${escapeHtml(candidate.email || "Not provided")}</p>
+        <p><strong>Position ID:</strong> ${candidate.positionId}</p>
+        <p><strong>Biography:</strong> ${escapeHtml(candidate.biography || "Not provided")}</p>
+        <p><strong>Photo:</strong> ${escapeHtml(candidate.photo || "Not provided")}</p>
+        <button
+          class="delete-btn"
+          onclick="deleteCandidate(${candidate.id})">
+          Delete
+        </button>
+      `;
+                    list.appendChild(div);
+                });
+            } catch (error) {
+                console.error("Candidate loading error:", error);
+                list.innerHTML = "<p class='empty'>Unable to load candidates.</p>";
+            }
+        }
+
+        async function deleteCandidate(id) {
+            if (!confirm("Are you sure you want to delete this candidate?")) {
+                return;
+            }
+
+            try {
+                const response = await fetch(API + "/candidates/" + id, {
+                    method: "DELETE"
+                });
+
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+
+                await loadCandidates();
+            } catch (error) {
+                alert("Unable to delete candidate: " + error.message);
+            }
+        }
+
+        function escapeHtml(value) {
+            const div = document.createElement("div");
+            div.textContent = value;
+            return div.innerHTML;
+        }
+
+        function goBack() {
+            window.location.href = "admin-dashboard.html";
+        }
+
+        loadElection();
+    </script>
 
 </body>
 
