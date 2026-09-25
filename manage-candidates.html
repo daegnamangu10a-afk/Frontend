@@ -1188,17 +1188,11 @@ async function loadCandidates() {
                      * /uploads/UUID.jpg
                      */
 
-                    if (
-                        photoUrl.startsWith(
-                            "/uploads/"
-                        )
-                    ) {
-
-                        photoUrl =
-                            "http://localhost:8080" +
-                            photoUrl;
-
+                    if (photoUrl.startsWith("/uploads/")) {
+                        photoUrl = API.replace("/api", "") + photoUrl;
                     }
+
+}
 
 
                     /*
