@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ELECTO - Secure Election Management</title>
+    <title>ELECTO - Registration</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
+<body>
 <div class="page">
     <!-- Background Decoration -->
     <div class="circle circle-one"></div>
     <div class="circle circle-two"></div>
 
     <main class="login-container">
-
-        <!-- Left Branding Section -->
+        <!-- LEFT BRANDING -->
         <section class="brand-section">
-
             <div class="brand-logo">
                 <div class="logo-icon">E</div>
                 <span>ELECTO</span>
@@ -26,96 +25,97 @@
 
             <div class="brand-content">
                 <span class="small-label">ELECTION MANAGEMENT SYSTEM</span>
-                <h1>
-                    Your Vote.<br>
-                    <span>Your Voice.</span>
-                </h1>
+
+                <h1>Join.<br><span>Participate.</span></h1>
 
                 <p>
-                    A secure and streamlined platform designed
-                    to make every election simple, transparent,
-                    and accessible.
+                    Create your ELECTO account to participate
+                    securely in your college elections.
                 </p>
             </div>
+
             <div class="brand-footer">
                 <span>●</span>
                 Secure Digital Voting
             </div>
         </section>
 
-        <!-- Login Section -->
+        <!-- REGISTRATION SECTION -->
         <section class="login-section">
             <div class="login-card">
-                <!-- Login Icon -->
-                <div class="card-icon">
-                    🔐
-                </div>
+                <!-- ICON -->
+                <div class="card-icon">📝</div>
 
-                <!-- Welcome -->
+                <!-- HEADING -->
                 <div class="welcome-text">
-                    <span>WELCOME TO</span>
-                    <h2>ELECTO</h2>
+                    <span>CREATE ACCOUNT</span>
+                    <h2>Register</h2>
                 </div>
 
-                <!-- Description -->
+                <!-- DESCRIPTION -->
                 <p class="login-description">
-                    Enter your registered email address to securely
-                    continue.
+                    Create your ELECTO account using your
+                    name, email address and password.
                 </p>
 
-                <!-- Login Form -->
-                <form onsubmit="event.preventDefault(); loginUser();">
-                    <!-- Email -->
-                    <label for="email">
-                        Registered Email Address
-                    </label>
+                <!-- REGISTRATION FORM -->
+                <form onsubmit="event.preventDefault(); registerUser();">
+                    <!-- FULL NAME -->
+                    <label for="registerName">Full Name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input
+                            type="text"
+                            id="registerName"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            required>
+                    </div>
 
+                    <!-- EMAIL -->
+                    <label for="registerEmail" style="margin-top: 18px;">Email Address</label>
                     <div class="input-wrapper">
                         <span class="input-icon">✉</span>
                         <input
                             type="email"
-                            id="email"
+                            id="registerEmail"
                             placeholder="Enter your email address"
                             autocomplete="email"
                             required>
                     </div>
 
-                    <!-- Password -->
-                    <label for="password" style="margin-top: 18px;">
-                        Password
-                    </label>
-
+                    <!-- PASSWORD -->
+                    <label for="registerPassword" style="margin-top: 18px;">Password</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">
-                            🔑
-                        </span>
-
+                        <span class="input-icon">🔑</span>
                         <input
                             type="password"
-                            id="password"
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
+                            id="registerPassword"
+                            placeholder="Minimum 6 characters"
+                            minlength="6"
+                            autocomplete="new-password"
                             required>
                     </div>
 
-                    <!-- Login Button -->
+                    <!-- REGISTER BUTTON -->
                     <button type="submit" class="continue-btn">
-                        <span>Login Securely</span>
+                        <span>Create Account</span>
                         <span class="arrow">→</span>
                     </button>
                 </form>
 
-                <!-- Message -->
-                <div id="message"></div>
+                <!-- MESSAGE -->
+                <div id="registerMessage"></div>
 
-                <div style="text-align: center;">
-                    <span>Don't have an account?</span>
-                    <a href="registration.html" style="color: #d4af37; font-weight: 600; text-decoration: none;margin-left: 5px;">
-                        Register here
+                <!-- LOGIN LINK -->
+                <div style=" text-align: center; margin-top: 22px;">
+                    <span>Already have an account?</span>
+                    <a href="index.html" style="color: #d4af37; font-weight: 600; text-decoration: none; margin-left: 5px;">
+                        Login
                     </a>
                 </div>
 
-                <!-- Security Note -->
+                 <!-- Security Note -->
                 <div class="security-note">
                     <span class="shield">🛡</span>
                     <div>
@@ -128,7 +128,7 @@
                 </div>
             </div>
 
-            <!-- Copyright -->
+            <!-- FOOTER -->
             <div class="copyright">
                 © 2026 ELECTO · Secure Election Management System
             </div>
