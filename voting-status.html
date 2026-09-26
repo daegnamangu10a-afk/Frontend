@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -219,120 +220,137 @@
     </div>
 
     <script>
-        // Check login
+        const API = "https://electo-7p79.onrender.com/api";
         const userEmail = localStorage.getItem("userEmail");
         const userRole = localStorage.getItem("userRole");
 
-        if (!userEmail || userRole !== "VOTER") {
+        if (!userEmail || userRole?.trim().toUpperCase() !== "VOTER") {
             alert("Access denied. Voter login required.");
             window.location.href = "index.html";
-        }
-
-        document.getElementById("userEmail").textContent = userEmail;
-
-        // Get election data
-        const election = JSON.parse(localStorage.getItem("election"));
-
-        // Get votes
-        const votes = JSON.parse(localStorage.getItem("votes")) || [];
-
-        // Show election information
-        if (election) {
-            document.getElementById("electionName").textContent =
-                election.name || "-";
-
-            document.getElementById("startDate").textContent =
-                election.startDate || "-";
-
-            document.getElementById("endDate").textContent =
-                election.endDate || "-";
-
-            document.getElementById("maxPositions").textContent =
-                election.maxPositions || "-";
-        }
-
-        // Get all votes of the logged-in voter
-        const myVotes = votes.filter(
-            vote => vote.voterEmail === userEmail
-        );
-
-        // Voting status
-        const statusBox = document.getElementById("statusBox");
-        const statusTitle = document.getElementById("statusTitle");
-        const statusMessage = document.getElementById("statusMessage");
-        const votesContainer = document.getElementById("votesContainer");
-
-        if (myVotes.length > 0) {
-
-            statusTitle.textContent = "Vote Submitted";
-
-            statusMessage.textContent =
-                "You have successfully voted for " +
-                myVotes.length +
-                " position(s).";
-
         } else {
-
-            statusBox.classList.add("not-voted");
-
-            statusTitle.textContent = "You Have Not Voted Yet";
-
-            statusMessage.textContent =
-                "You have not submitted your vote for this election yet.";
-
-            votesContainer.innerHTML = `
-                <div class="empty-message">
-                    No votes have been submitted yet.
-                </div>
-            `;
+            document.getElementById("userEmail").textContent = userEmail;
+            loadVotingStatus();
         }
 
-        // Display ALL votes
-        if (myVotes.length > 0) {
+        async function getJSON(path) {
+            const response = await fetch(API + path);
+            if (!response.ok) {
+                throw new Error(`Request failed (${response.status}): ${path}`);
+            }
+            return response.json();
+        }
 
-            votesContainer.innerHTML = "";
+        async function loadVotingStatus() {
+            const statusBox = document.getElementById("statusBox");
+            const statusTitle = document.getElementById("statusTitle");
+            const statusMessage = document.getElementById("statusMessage");
+            const votesContainer = document.getElementById("votesContainer");
 
-            myVotes.forEach((vote, index) => {
+            try {
+                const [voter, elections, allVotes] = await Promise.all([
+                    getJSON("/voters/by-email?email=" + encodeURIComponent(userEmail)),
+                    getJSON("/elections"),
+                    getJSON("/votes")
+                ]);
 
-                const voteDate = vote.votedAt
-                    ? new Date(vote.votedAt).toLocaleString()
-                    : "-";
+                if (!voter?.id) throw new Error("Voter record not found.");
+                if (!Array.isArray(elections) || !Array.isArray(allVotes)) {
+                    throw new Error("Invalid response from the server.");
+                }
 
-                const voteCard = document.createElement("div");
+                const now = new Date();
+                const election = elections.find(e => {
+                    const start = new Date(e.startTime);
+                    const end = new Date(e.endTime);
+                    return !Number.isNaN(start.getTime()) &&
+                        !Number.isNaN(end.getTime()) &&
+                        now >= start && now <= end;
+                }) || [...elections].sort((a, b) =>
+                    new Date(b.startTime) - new Date(a.startTime)
+                )[0];
 
-                voteCard.className = "vote-card";
+                if (!election) {
+                    statusBox.classList.add("not-voted");
+                    statusTitle.textContent = "No Election Available";
+                    statusMessage.textContent = "No election has been created yet.";
+                    votesContainer.textContent = "No election to display.";
+                    return;
+                }
 
-                voteCard.innerHTML = `
+                document.getElementById("electionName").textContent = election.name || "-";
+                document.getElementById("startDate").textContent = formatDate(election.startTime);
+                document.getElementById("endDate").textContent = formatDate(election.endTime);
+
+                const positions = await getJSON("/positions/election/" + encodeURIComponent(election.id));
+                if (!Array.isArray(positions)) throw new Error("Invalid positions response.");
+                document.getElementById("maxPositions").textContent = positions.length;
+
+                const myVotes = allVotes.filter(vote =>
+                    Number(vote.voterId) === Number(voter.id) &&
+                    Number(vote.electionId) === Number(election.id)
+                );
+
+                if (myVotes.length === 0) {
+                    statusBox.classList.add("not-voted");
+                    statusTitle.textContent = "You Have Not Voted Yet";
+                    statusMessage.textContent = "You have not submitted a vote for this election yet.";
+                    votesContainer.innerHTML = '<div class="empty-message">No votes have been submitted yet.</div>';
+                    return;
+                }
+
+                statusBox.classList.remove("not-voted");
+                statusTitle.textContent = "Vote Submitted";
+                statusMessage.textContent =
+                    `You have successfully voted for ${myVotes.length} position(s).`;
+
+                const positionById = new Map(positions.map(p => [Number(p.id), p]));
+                const candidateLists = await Promise.all(
+                    [...new Set(myVotes.map(v => Number(v.positionId)))].map(id =>
+                        getJSON("/candidates/position/" + encodeURIComponent(id))
+                    )
+                );
+                const candidateById = new Map(
+                    candidateLists.flat().map(c => [Number(c.id), c])
+                );
+
+                votesContainer.innerHTML = "";
+                myVotes.forEach((vote, index) => {
+                    const position = positionById.get(Number(vote.positionId));
+                    const candidate = candidateById.get(Number(vote.candidateId));
+                    const card = document.createElement("div");
+                    card.className = "vote-card";
+                    card.innerHTML = `
                     <h3>Vote ${index + 1}</h3>
-
-                    <div class="vote-detail">
-                        <strong>Position:</strong>
-                        ${escapeHTML(vote.position || "-")}
-                    </div>
-
-                    <div class="vote-detail">
-                        <strong>Candidate Name:</strong>
-                        ${escapeHTML(vote.candidateName || "-")}
-                    </div>
-
-                    <div class="vote-detail">
-                        <strong>Candidate Email:</strong>
-                        ${escapeHTML(vote.candidateEmail || "-")}
-                    </div>
-
-                    <div class="vote-detail">
-                        <strong>Vote Submitted:</strong>
-                        ${escapeHTML(voteDate)}
-                    </div>
+                    <div class="vote-detail"><strong>Position:</strong>
+                        ${escapeHTML(position?.name || `Position ID ${vote.positionId}`)}</div>
+                    <div class="vote-detail"><strong>Candidate Name:</strong>
+                        ${escapeHTML(candidate?.name || `Candidate ID ${vote.candidateId}`)}</div>
+                    <div class="vote-detail"><strong>Candidate Email:</strong>
+                        ${escapeHTML(candidate?.email || "-")}</div>
+                    <div class="vote-detail"><strong>Vote Submitted:</strong>
+                        ${escapeHTML(formatDate(vote.votedAt))}</div>
                 `;
-
-                votesContainer.appendChild(voteCard);
-            });
+                    votesContainer.appendChild(card);
+                });
+            } catch (error) {
+                console.error("Voting status error:", error);
+                statusBox.classList.add("not-voted");
+                statusTitle.textContent = "Unable to Load Voting Status";
+                statusMessage.textContent = "Please refresh the page and try again.";
+                votesContainer.textContent = "Voting records could not be loaded.";
+            }
         }
 
-        // Prevent HTML injection
+        function formatDate(value) {
+            if (!value) return "-";
+            const date = new Date(value);
+            return Number.isNaN(date.getTime())
+                ? String(value)
+                : date.toLocaleString("en-IN", {dateStyle: "medium", timeStyle: "short"});
+        }
+
         function escapeHTML(value) {
-            return String(value)
+            return String(value ?? "")
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
@@ -345,5 +363,7 @@
         }
     </script>
 
+
 </body>
+
 </html>
