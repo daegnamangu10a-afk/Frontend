@@ -580,9 +580,9 @@
 
                         <p class="description">
                             ${escapeHTML(
-                                election.description ||
-                                "No description provided."
-                            )}
+                election.description ||
+                "No description provided."
+            )}
                         </p>
                     </div>
 
@@ -613,10 +613,10 @@
                         <strong>Maximum Positions</strong>
                         <span>
                             ${escapeHTML(
-                                election.maxPositions ||
-                                election.maximumPositions ||
-                                "Not specified"
-                            )}
+                election.maxPositions ||
+                election.maximumPositions ||
+                "Not specified"
+            )}
                         </span>
                     </div>
 
@@ -634,9 +634,8 @@
 
                 <div class="action-buttons">
 
-                    ${
-                        status.canVote
-                            ? `
+                    ${status.canVote
+                    ? `
                                 <a
                                     class="vote-btn"
                                     href="cast-vote.html?electionId=${encodeURIComponent(electionId)}"
@@ -644,12 +643,12 @@
                                     Vote Now
                                 </a>
                             `
-                            : `
+                    : `
                                 <button class="disabled-btn" disabled>
                                     Voting Not Available
                                 </button>
                             `
-                    }
+                }
 
                 </div>
             `;
@@ -744,11 +743,7 @@
 
                         positionCandidates.forEach(candidate => {
 
-                            const photo =
-                                candidate.photo &&
-                                String(candidate.photo).trim() !== ""
-                                    ? candidate.photo
-                                    : "https://via.placeholder.com/150?text=Candidate";
+                            const photo = getCandidatePhotoUrl(candidate.photo);
 
                             html += `
                                 <div class="candidate-card">
@@ -776,9 +771,9 @@
 
                                         <div class="biography">
                                             ${escapeHTML(
-                                                candidate.biography ||
-                                                "No biography provided."
-                                            )}
+                                candidate.biography ||
+                                "No biography provided."
+                            )}
                                         </div>
 
                                     </div>
@@ -816,6 +811,25 @@
             }
         }
 
+        function getCandidatePhotoUrl(photo) {
+            if (!photo || !String(photo).trim()) {
+                return "https://via.placeholder.com/150?text=Candidate";
+            }
+
+            const value = String(photo).trim();
+            const backendOrigin = new URL(API_BASE).origin;
+
+            if (/^https?:\/\//i.test(value)) {
+                return value;
+            }
+
+            if (value.startsWith("/")) {
+                // New /api/candidates/{id}/photo and old /uploads/... paths.
+                return backendOrigin + value;
+            }
+
+            return backendOrigin + "/uploads/" + encodeURIComponent(value);
+        }
 
         function goBack() {
             window.location.href = "dashboard.html";

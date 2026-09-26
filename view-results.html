@@ -363,10 +363,7 @@
 
         <!-- ELECTION INFORMATION -->
 
-        <div
-            class="election-card"
-            id="electionCard"
-        >
+        <div class="election-card" id="electionCard">
 
             <h3>
                 Loading election...
@@ -389,10 +386,7 @@
                     Registered Voters
                 </h4>
 
-                <div
-                    class="number"
-                    id="totalVoters"
-                >
+                <div class="number" id="totalVoters">
                     0
                 </div>
 
@@ -405,10 +399,7 @@
                     Voters Who Voted
                 </h4>
 
-                <div
-                    class="number"
-                    id="votersWhoVoted"
-                >
+                <div class="number" id="votersWhoVoted">
                     0
                 </div>
 
@@ -421,10 +412,7 @@
                     Total Vote Records
                 </h4>
 
-                <div
-                    class="number"
-                    id="totalVotes"
-                >
+                <div class="number" id="totalVotes">
                     0
                 </div>
 
@@ -448,10 +436,7 @@
 
         <div class="back-container">
 
-            <button
-                class="back-btn"
-                onclick="goBack()"
-            >
+            <button class="back-btn" onclick="goBack()">
                 ← Back to Dashboard
             </button>
 
@@ -766,37 +751,37 @@
 
                 <h3>
                     ${escapeHTML(
-                        currentElection.name ||
-                        "Unnamed Election"
-                    )}
+                currentElection.name ||
+                "Unnamed Election"
+            )}
                 </h3>
 
                 <p>
                     ${escapeHTML(
-                        currentElection.description ||
-                        "No description provided."
-                    )}
+                currentElection.description ||
+                "No description provided."
+            )}
                 </p>
 
                 <p>
                     <strong>Start Date:</strong>
                     ${escapeHTML(
-                        formatDate(startTime)
-                    )}
+                formatDate(startTime)
+            )}
                 </p>
 
                 <p>
                     <strong>End Date:</strong>
                     ${escapeHTML(
-                        formatDate(endTime)
-                    )}
+                formatDate(endTime)
+            )}
                 </p>
 
                 <p>
                     <strong>Election ID:</strong>
                     ${escapeHTML(
-                        String(currentElection.id)
-                    )}
+                String(currentElection.id)
+            )}
                 </p>
 
             `;
@@ -1014,8 +999,8 @@
                     <div class="position-title">
 
                         ${escapeHTML(
-                            position.name
-                        )}
+                    position.name
+                )}
 
                     </div>
 
@@ -1147,8 +1132,7 @@
                             // PHOTO
                             // ----------------------------------
 
-                            const photo =
-                                candidate.photo || "";
+                            const photo = getCandidatePhotoUrl(candidate.photo);
 
 
                             // ----------------------------------
@@ -1167,9 +1151,8 @@
 
                             card.innerHTML = `
 
-                                ${
-                                    photo
-                                        ? `
+                                ${photo
+                                    ? `
                                             <img
                                                 class="candidate-photo"
                                                 src="${escapeHTML(photo)}"
@@ -1177,7 +1160,7 @@
                                                 onerror="this.style.display='none';"
                                             >
                                           `
-                                        : `
+                                    : `
                                             <div
                                                 class="candidate-photo"
                                                 style="
@@ -1197,8 +1180,8 @@
 
                                     <h4>
                                         ${escapeHTML(
-                                            candidate.name
-                                        )}
+                                    candidate.name
+                                )}
                                     </h4>
 
                                     <p>
@@ -1208,9 +1191,9 @@
                                         </strong>
 
                                         ${escapeHTML(
-                                            candidate.email ||
-                                            "Not provided"
-                                        )}
+                                    candidate.email ||
+                                    "Not provided"
+                                )}
 
                                     </p>
 
@@ -1221,24 +1204,23 @@
                                         </strong>
 
                                         ${escapeHTML(
-                                            String(
-                                                candidate.id
-                                            )
-                                        )}
+                                    String(
+                                        candidate.id
+                                    )
+                                )}
 
                                     </p>
 
-                                    ${
-                                        candidate.biography
-                                            ? `
+                                    ${candidate.biography
+                                    ? `
                                                 <p>
                                                     ${escapeHTML(
-                                                        candidate.biography
-                                                    )}
+                                        candidate.biography
+                                    )}
                                                 </p>
                                               `
-                                            : ""
-                                    }
+                                    : ""
+                                }
 
                                     ${statusHTML}
 
@@ -1253,8 +1235,8 @@
 
                                     <p>
                                         Vote${voteCount === 1
-                                            ? ""
-                                            : "s"}
+                                    ? ""
+                                    : "s"}
                                     </p>
 
                                 </div>
@@ -1442,6 +1424,17 @@
 
         }
 
+        function getCandidatePhotoUrl(photo) {
+            if (!photo || !String(photo).trim()) return "";
+
+            const value = String(photo).trim();
+            const backendOrigin = new URL(API).origin;
+
+            if (/^https?:\/\//i.test(value)) return value;
+            if (value.startsWith("/")) return backendOrigin + value;
+
+            return backendOrigin + "/uploads/" + encodeURIComponent(value);
+        }
 
         // ==========================================
         // START

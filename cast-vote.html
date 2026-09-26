@@ -914,17 +914,20 @@
             if (!photo) return "";
 
             const value = photo.trim();
-            const serverUrl = API.replace(/\/api\/?$/, "");
+            const backendOrigin = new URL(API).origin;
 
             if (/^https?:\/\//i.test(value)) {
                 return value;
             }
 
-            if (value.startsWith("/uploads/")) {
-                return serverUrl + value;
+            if (value.startsWith("/")) {
+                // Handles both /api/candidates/{id}/photo
+                // and older /uploads/{filename} paths.
+                return backendOrigin + value;
             }
 
-            return serverUrl + "/uploads/" + encodeURIComponent(value);
+            // Supports older records containing only a filename.
+            return backendOrigin + "/uploads/" + encodeURIComponent(value);
         }
 
         /* =========================================
