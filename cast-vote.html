@@ -758,29 +758,35 @@
                 return;
             }
 
-            if (!currentPositions.length) {
-                alert("There are no positions available to vote for.");
-                return;
-            }
+            // Count only positions that actually have candidates.
+            const availableRadios = Array.from(
+                document.querySelectorAll(
+                    '#votingArea input[type="radio"][data-position-id]'
+                )
+            );
 
-            const selected = Array.from(
-                document.querySelectorAll('#votingArea input[type="radio"]:checked')
+            const selected = availableRadios.filter(input => input.checked);
+
+            const availablePositions = new Set(
+                availableRadios.map(input => input.dataset.positionId)
             );
 
             const selectedPositions = new Set(
                 selected.map(input => input.dataset.positionId)
             );
 
-            const requiredPositions = new Set(
-                currentPositions.map(position => String(position.id))
-            );
+            if (availablePositions.size === 0) {
+                alert("No candidates are available for voting.");
+                return;
+            }
 
             if (
-                selected.length !== currentPositions.length ||
-                selectedPositions.size !== requiredPositions.size ||
-                [...selectedPositions].some(id => !requiredPositions.has(id))
+                selected.length !== availablePositions.size ||
+                selectedPositions.size !== availablePositions.size
             ) {
-                alert("Please select one candidate for every position.");
+                alert(
+                    "Please select one candidate for each position that has candidates."
+                );
                 return;
             }
 
@@ -798,7 +804,7 @@
             let submittedCount = 0;
 
             try {
-                // The existing API saves one vote per position.
+                // The current API saves one vote per selected position.
                 for (const input of selected) {
                     const vote = {
                         voterId: currentVoter.id,
@@ -845,7 +851,7 @@
 
                 alert(warning + error.message);
 
-                // Retrying after partial success could submit duplicate votes.
+                // A full retry after partial success could create duplicate votes.
                 if (submittedCount === 0) {
                     submitButton.disabled = false;
                     submitButton.classList.remove("disabled");
