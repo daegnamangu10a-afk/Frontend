@@ -449,14 +449,9 @@
                 // A timestamp without a timezone is interpreted as local time;
                 // the API should return an offset or Z for reliable results.
                 currentElection = elections.find(election => {
-                    if (typeof election.canVote === "boolean") {
-                        return election.canVote;
-                    }
-                    if (typeof election.status === "string") {
-                        return election.status.trim().toUpperCase() === "ACTIVE";
-                    }
                     const start = parseElectionDate(election.startTime);
                     const end = parseElectionDate(election.endTime);
+
                     return start && end && now >= start && now <= end;
                 });
                 if (!currentElection) {
@@ -475,7 +470,6 @@
                     }
                     disableSubmit();
                     document.getElementById("votingArea").innerHTML = `
-
                 <div class="message">
                     <h3>
                         Voting is not available
@@ -749,52 +743,62 @@
                 alert("Voter information is not loaded yet.");
                 return;
             }
+
             if (!currentElection) {
                 alert("There is no active election.");
                 return;
             }
-            const selected = Array.from(document.querySelectorAll('input[type="radio"]:checked'));
-            if (selected.length !== currentPositions.length) {
-                alert("Please select one candidate for every position.");
-                return;
-            }
-            /*
-            
-                 * Make sure only one candidate
-            
-                 * is selected for each position.
-            
-                 */
-            const selectedPositions = new Set();
-            for (const input of selected) {
-                const positionId = input.dataset.positionId;
-                if (selectedPositions.has(positionId)) {
-                    alert("Please select only one candidate for each position.");
-                    return;
-                }
-                selectedPositions.add(positionId);
-            }
-            // The server must also check this at submission time.
-            if (currentElection.canVote === false || (typeof currentElection.canVote !== "boolean" && typeof currentElection.status === "string" && currentElection.status.trim().toUpperCase() !== "ACTIVE") || (typeof currentElection.canVote !== "boolean" && typeof currentElection.status !== "string" && (!parseElectionDate(currentElection.startTime) || !parseElectionDate(currentElection.endTime) || new Date() < parseElectionDate(currentElection.startTime) || new Date() > parseElectionDate(currentElection.endTime)))) {
+
+            const start = parseElectionDate(currentElection.startTime);
+            const end = parseElectionDate(currentElection.endTime);
+            const now = new Date();
+
+            if (!start || !end || now < start || now > end) {
                 alert("Voting is no longer open. Please refresh the page.");
                 return;
             }
-            const confirmation = confirm("Are you sure you want to submit your vote? " + "Once submitted, it cannot be changed.");
-            if (!confirmation) {
+
+            if (!currentPositions.length) {
+                alert("There are no positions available to vote for.");
                 return;
             }
+
+            const selected = Array.from(
+                document.querySelectorAll('#votingArea input[type="radio"]:checked')
+            );
+
+            const selectedPositions = new Set(
+                selected.map(input => input.dataset.positionId)
+            );
+
+            const requiredPositions = new Set(
+                currentPositions.map(position => String(position.id))
+            );
+
+            if (
+                selected.length !== currentPositions.length ||
+                selectedPositions.size !== requiredPositions.size ||
+                [...selectedPositions].some(id => !requiredPositions.has(id))
+            ) {
+                alert("Please select one candidate for every position.");
+                return;
+            }
+
+            const confirmation = confirm(
+                "Are you sure you want to submit your vote? " +
+                "Once submitted, it cannot be changed."
+            );
+
+            if (!confirmation) return;
+
             const submitButton = document.getElementById("submitBtn");
             submitButton.disabled = true;
             submitButton.classList.add("disabled");
+
             let submittedCount = 0;
+
             try {
-                /*
-            
-                     * Submit each selected position
-            
-                     * as a separate Vote record.
-            
-                     */
+                // The existing API saves one vote per position.
                 for (const input of selected) {
                     const vote = {
                         voterId: currentVoter.id,
@@ -802,6 +806,7 @@
                         positionId: Number(input.dataset.positionId),
                         candidateId: Number(input.dataset.candidateId)
                     };
+
                     const response = await fetch(API + "/votes", {
                         method: "POST",
                         headers: {
@@ -809,25 +814,38 @@
                         },
                         body: JSON.stringify(vote)
                     });
+
                     const result = await response.text();
+
                     if (!response.ok) {
                         let message = result || "The server rejected the vote.";
+
                         try {
                             const data = JSON.parse(result);
                             message = data.message || data.error || message;
                         } catch (_) {
-                            /* Response was plain text. */
+                            // The response was plain text.
                         }
+
                         throw new Error(message);
                     }
+
                     submittedCount++;
                 }
+
                 alert("Your vote has been submitted successfully!");
                 window.location.href = "dashboard.html";
+
             } catch (error) {
                 console.error("Vote submission error:", error);
-                alert("Vote could not be submitted.\n\n" + error.message);
-                // Retrying the full ballot after partial success can create duplicates.
+
+                const warning = submittedCount > 0
+                    ? `${submittedCount} vote(s) were saved before an error. Do not submit the full ballot again; contact the administrator.\n\n`
+                    : "Vote could not be submitted.\n\n";
+
+                alert(warning + error.message);
+
+                // Retrying after partial success could submit duplicate votes.
                 if (submittedCount === 0) {
                     submitButton.disabled = false;
                     submitButton.classList.remove("disabled");
@@ -885,7 +903,7 @@
             });
         }
 
-        
+
         function getCandidatePhotoUrl(photo) {
             if (!photo) return "";
 
