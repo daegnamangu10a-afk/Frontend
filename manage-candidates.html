@@ -264,7 +264,7 @@
                     Profile Photo
                 </label>
 
-                <input type="file" id="photo" accept="image/*">
+                <input type="file" id="photo" accept="image/jpeg,image/png">
 
                 <div class="upload-status" id="uploadStatus">
                 </div>
@@ -429,36 +429,33 @@
             }
         }
 
-        async function uploadCandidatePhoto(photoFile) {
-            if (!photoFile) {
-                return "";
+        async function uploadCandidatePhoto(candidateId, photoFile) {
+            if (!["image/jpeg", "image/png"].includes(photoFile.type)) {
+                throw new Error("Only JPEG and PNG images are allowed.");
             }
 
-            if (!photoFile.type.startsWith("image/")) {
-                throw new Error("Please select a valid image file.");
-            }
-
-            const maxSize = 5 * 1024 * 1024;
-            if (photoFile.size > maxSize) {
-                throw new Error("Image size must be less than 5 MB.");
+            if (photoFile.size > 150 * 1024) {
+                throw new Error("Image must be 150 KB or smaller.");
             }
 
             const formData = new FormData();
             formData.append("file", photoFile);
 
-            const response = await fetch(API + "/candidates/upload-photo", {
-                method: "POST",
-                body: formData
-            });
-
-            const result = await response.text();
-            console.log("Photo upload response:", result);
+            const response = await fetch(
+                API + "/candidates/" + encodeURIComponent(candidateId) + "/photo",
+                {
+                    method: "PUT",
+                    body: formData
+                }
+            );
 
             if (!response.ok) {
-                throw new Error(result || "Photo upload failed.");
+                throw new Error(
+                    (await response.text()) || "Photo upload failed."
+                );
             }
 
-            return result;
+            return response.json();
         }
 
         document.getElementById("candidateForm").addEventListener("submit", async function (event) {
@@ -475,7 +472,9 @@
 
             const name = document.getElementById("candidateName").value.trim();
             const email = document.getElementById("candidateEmail").value.trim();
-            const positionId = document.getElementById("position").value;
+            const positionId = Number(
+                document.getElementById("position").value
+            );
             const biography = document.getElementById("biography").value.trim();
             const photoFile = document.getElementById("photo").files[0];
 
@@ -484,45 +483,42 @@
                 return;
             }
 
-            if (!positionId) {
-                alert("Please select a position.");
+            if (!Number.isInteger(positionId) || positionId <= 0) {
+                alert("Please select a valid position.");
                 return;
             }
 
-            const numericPositionId = Number(positionId);
-            if (!Number.isInteger(numericPositionId) || numericPositionId <= 0) {
-                alert("Invalid Position ID. Please reload the page and try again.");
-                return;
+            // Validate before creating the candidate to avoid an avoidable
+            // partial result if the selected file is too large or unsupported.
+            if (photoFile) {
+                if (!["image/jpeg", "image/png"].includes(photoFile.type)) {
+                    alert("Only JPEG and PNG images are allowed.");
+                    return;
+                }
+
+                if (photoFile.size > 150 * 1024) {
+                    alert("Image must be 150 KB or smaller.");
+                    return;
+                }
             }
 
             addButton.disabled = true;
-            message.innerText = "";
+            message.textContent = "";
+            uploadStatus.textContent = "";
+
+            let savedCandidate = null;
 
             try {
-                let photoUrl = "";
-
-                if (photoFile) {
-                    uploadStatus.innerText = "Uploading photo...";
-                    photoUrl = await uploadCandidatePhoto(photoFile);
-                    uploadStatus.innerText = "Photo uploaded successfully.";
-                } else {
-                    uploadStatus.innerText = "No photo selected.";
-                }
-
-                console.log("Uploaded photo URL:", photoUrl);
-
                 const candidate = {
-                    name: name,
-                    email: email,
+                    name,
+                    email,
                     electionId: Number(currentElection.id),
-                    positionId: numericPositionId,
-                    biography: biography,
-                    photo: photoUrl
+                    positionId,
+                    biography
                 };
 
-                console.log("Candidate:", candidate);
+                message.textContent = "Saving candidate...";
 
-                message.innerText = "Saving candidate...";
                 const response = await fetch(API + "/candidates", {
                     method: "POST",
                     headers: {
@@ -531,27 +527,44 @@
                     body: JSON.stringify(candidate)
                 });
 
-                const result = await response.text();
-                console.log("Candidate response:", result);
-
                 if (!response.ok) {
-                    throw new Error(result || "Unable to add candidate.");
+                    throw new Error(
+                        (await response.text()) || "Unable to add candidate."
+                    );
                 }
 
-                message.innerText = "Candidate added successfully.";
+                savedCandidate = await response.json();
+
+                if (!savedCandidate.id) {
+                    throw new Error("Candidate was saved without an ID.");
+                }
+
+                if (photoFile) {
+                    uploadStatus.textContent = "Uploading photo...";
+                    await uploadCandidatePhoto(savedCandidate.id, photoFile);
+                    uploadStatus.textContent = "Photo saved successfully.";
+                } else {
+                    uploadStatus.textContent = "No photo selected.";
+                }
+
+                message.textContent = "Candidate added successfully.";
                 message.style.color = "green";
-                uploadStatus.innerText = "";
 
                 document.getElementById("candidateForm").reset();
                 await loadCandidates();
             } catch (error) {
                 console.error("Candidate error:", error);
-                message.innerText = "Error: " + error.message;
+
+                message.textContent = savedCandidate
+                    ? `Candidate ${savedCandidate.id} was created, but the photo or page refresh failed: ${error.message}. Do not submit the form again.`
+                    : "Error: " + error.message;
+
                 message.style.color = "red";
             } finally {
                 addButton.disabled = false;
             }
-        });
+        }
+        );
 
         async function loadCandidates() {
             const list = document.getElementById("candidateList");
@@ -562,7 +575,10 @@
             }
 
             try {
-                const response = await fetch(API + "/candidates/election/" + currentElection.id);
+                const response = await fetch(
+                    API + "/candidates/election/" +
+                    encodeURIComponent(currentElection.id)
+                );
 
                 if (!response.ok) {
                     throw new Error("Unable to load candidates.");
@@ -570,57 +586,77 @@
 
                 const candidates = await response.json();
 
-                if (!candidates || candidates.length === 0) {
-                    list.innerHTML = "<p class='empty'>No candidates added yet.</p>";
+                if (!Array.isArray(candidates) || candidates.length === 0) {
+                    list.innerHTML =
+                        "<p class='empty'>No candidates added yet.</p>";
                     return;
                 }
 
                 list.innerHTML = "";
+                const backendOrigin = new URL(API).origin;
 
                 candidates.forEach(candidate => {
                     const div = document.createElement("div");
                     div.className = "candidate";
 
-                    let photoUrl = "";
                     let photoHTML = "";
 
                     if (candidate.photo) {
-                        photoUrl = candidate.photo;
+                        const storedPath = candidate.photo.trim();
+                        let photoUrl;
 
-                        if (photoUrl.startsWith("/uploads/")) {
-                            photoUrl = API.replace("/api", "") + photoUrl;
-                        }
-                        else if (!photoUrl.startsWith("http://") && !photoUrl.startsWith("https://") && !photoUrl.startsWith("/")) {
-                            photoUrl = "https://electo-7p79.onrender.com/uploads/" + encodeURIComponent(photoUrl);
+                        if (/^https?:\/\//i.test(storedPath)) {
+                            photoUrl = storedPath;
+                        } else if (storedPath.startsWith("/")) {
+                            // Handles /uploads/... and /api/candidates/{id}/photo.
+                            photoUrl = backendOrigin + storedPath;
+                        } else {
+                            // Supports older records containing only a filename.
+                            photoUrl =
+                                backendOrigin +
+                                "/uploads/" +
+                                encodeURIComponent(storedPath);
                         }
 
                         photoHTML = `
-          <img
-            src="${photoUrl}"
-            alt="Candidate Photo"
-            class="candidate-photo"
-            onerror="this.style.display='none';"
-          >
-        `;
+                    <img
+                        src="${escapeHtml(photoUrl)}"
+                        alt="Candidate Photo"
+                        class="candidate-photo"
+                        onerror="this.style.display='none';"
+                    >
+                `;
                     }
 
                     div.innerHTML = `
-        ${photoHTML}
-        <h3>${escapeHtml(candidate.name)}</h3>
-        <p><strong>Email:</strong> ${escapeHtml(candidate.email || "Not provided")}</p>
-        <p><strong>Position ID:</strong> ${candidate.positionId}</p>
-        <p><strong>Biography:</strong> ${escapeHtml(candidate.biography || "Not provided")}</p>
-        <button
-          class="delete-btn"
-          onclick="deleteCandidate(${candidate.id})">
-          Delete
-        </button>
-      `;
+                ${photoHTML}
+                <h3>${escapeHtml(candidate.name || "")}</h3>
+                <p><strong>Email:</strong>
+                    ${escapeHtml(candidate.email || "Not provided")}
+                </p>
+                <p><strong>Position ID:</strong>
+                    ${escapeHtml(candidate.positionId ?? "-")}
+                </p>
+                <p><strong>Biography:</strong>
+                    ${escapeHtml(candidate.biography || "Not provided")}
+                </p>
+                <button class="delete-btn" type="button">
+                    Delete
+                </button>
+            `;
+
+                    div.querySelector(".delete-btn").addEventListener(
+                        "click",
+                        () => deleteCandidate(candidate.id)
+                    );
+
                     list.appendChild(div);
                 });
+
             } catch (error) {
                 console.error("Candidate loading error:", error);
-                list.innerHTML = "<p class='empty'>Unable to load candidates.</p>";
+                list.innerHTML =
+                    "<p class='empty'>Unable to load candidates.</p>";
             }
         }
 
