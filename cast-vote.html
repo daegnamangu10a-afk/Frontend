@@ -9,7 +9,6 @@
     <title>Cast Vote - Electo</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -25,11 +24,9 @@
             background: #111827;
             color: white;
             padding: 20px 40px;
-
             display: flex;
             justify-content: space-between;
             align-items: center;
-
             flex-wrap: wrap;
             gap: 15px;
         }
@@ -76,7 +73,7 @@
         .message {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
         }
 
         .page-title {
@@ -292,493 +289,238 @@
             .back-btn {
                 width: 100%;
             }
-
         }
-
     </style>
 
 </head>
 
-
 <body>
 
+    <header>
 
-<header>
+        <div>
 
-    <div>
+            <h1>Electo</h1>
 
-        <h1>Electo</h1>
+            <div style="margin-top: 5px;">
+                Elections Management System
+            </div>
 
-        <div style="margin-top: 5px;">
-            Elections Management System
+        </div>
+
+
+        <div class="user-info">
+
+            <strong id="userEmail">
+                Loading...
+            </strong>
+
+            <span id="userRole">
+                Loading...
+            </span>
+
+            <br>
+
+            <button class="logout-btn" onclick="logout()">
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </header>
+
+    <div class="container">
+
+        <div class="page-title">
+
+            <h2>
+                Cast Your Vote
+            </h2>
+
+            <p>
+                Select one candidate for each position and submit your vote.
+            </p>
+
+        </div>
+
+        <div id="electionInfo" class="election-info">
+
+            Loading election information...
+
+        </div>
+
+        <div id="votingArea">
+
+            Loading candidates...
+
+        </div>
+
+        <div class="button-area">
+
+            <button id="submitBtn" class="submit-btn" onclick="submitVote()">
+
+                Submit Vote
+
+            </button>
+
+            <button class="back-btn" onclick="goBack()">
+
+                Back to Dashboard
+
+            </button>
+
         </div>
 
     </div>
 
-
-    <div class="user-info">
-
-        <strong id="userEmail">
-            Loading...
-        </strong>
-
-        <span id="userRole">
-            Loading...
-        </span>
-
-        <br>
-
-        <button
-            class="logout-btn"
-            onclick="logout()">
-
-            Logout
-
-        </button>
-
-    </div>
-
-</header>
-
-
-<div class="container">
-
-
-    <div class="page-title">
-
-        <h2>
-            Cast Your Vote
-        </h2>
-
-        <p>
-            Select one candidate for each position and submit your vote.
-        </p>
-
-    </div>
-
-
-    <div
-        id="electionInfo"
-        class="election-info">
-
-        Loading election information...
-
-    </div>
-
-
-    <div id="votingArea">
-
-        Loading candidates...
-
-    </div>
-
-
-    <div class="button-area">
-
-        <button
-            id="submitBtn"
-            class="submit-btn"
-            onclick="submitVote()">
-
-            Submit Vote
-
-        </button>
-
-
-        <button
-            class="back-btn"
-            onclick="goBack()">
-
-            Back to Dashboard
-
-        </button>
-
-    </div>
-
-
-</div>
-
-
-
-<script>
-
-
-const API =
-    "https://electo-7p79.onrender.com/api";
-
-
-const userEmail =
-    localStorage.getItem("userEmail");
-
-
-const userRole =
-    localStorage.getItem("userRole");
-
-
-let currentVoter = null;
-
-let currentElection = null;
-
-let currentPositions = [];
-
-let currentCandidates = [];
-
-
-
-/* =========================================
-   LOGIN CHECK
-========================================= */
-
-if (!userEmail || !userRole) {
-
-    alert("Please login first.");
-
-    window.location.href =
-        "index.html";
-
-}
-
-
-if (userRole !== "VOTER") {
-
-    alert("Only voters can cast votes.");
-
-    window.location.href =
-        "dashboard.html";
-
-}
-
-
-document.getElementById("userEmail").textContent =
-    userEmail;
-
-document.getElementById("userRole").textContent =
-    "Role: " + userRole;
-
-
-
-/* =========================================
-   HTML ESCAPE
-========================================= */
-
-function escapeHTML(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
-    }
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-
-/* =========================================
-   START
-========================================= */
-
-loadVoter();
-
-
-
-/* =========================================
-   LOAD VOTER
-========================================= */
-
-async function loadVoter() {
-
-    try {
-
-        const response =
-            await fetch(
-                API +
-                "/voters/by-email?email=" +
-                encodeURIComponent(userEmail)
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load voter."
-            );
-
+    <script>
+        const API = "https://electo-7p79.onrender.com/api";
+        const userEmail = localStorage.getItem("userEmail");
+        const userRole = localStorage.getItem("userRole");
+        let currentVoter = null;
+        let currentElection = null;
+        let currentPositions = [];
+        let currentCandidates = [];
+        /* =========================================
+           LOGIN CHECK
+        ========================================= */
+        if (!userEmail || !userRole) {
+            alert("Please login first.");
+            window.location.href = "index.html";
         }
-
-
-        currentVoter =
-            await response.json();
-
-
-        if (!currentVoter) {
-
-            throw new Error(
-                "Voter record not found."
-            );
-
+        if (userRole && userRole.trim().toUpperCase() !== "VOTER") {
+            alert("Only voters can cast votes.");
+            window.location.href = "dashboard.html";
         }
-
-
-        loadElections();
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        showMessage(
-            "Unable to load your voter details. " +
-            "Please contact the administrator."
-        );
-
-    }
-
-}
-
-
-
-/* =========================================
-   LOAD ELECTIONS
-========================================= */
-
-async function loadElections() {
-
-    try {
-
-        const response =
-            await fetch(
-                API + "/elections"
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load elections."
-            );
-
+        document.getElementById("userEmail").textContent = userEmail;
+        document.getElementById("userRole").textContent = "Role: " + userRole;
+        /* =========================================
+           HTML ESCAPE
+        ========================================= */
+        function escapeHTML(value) {
+            if (value === null || value === undefined) {
+                return "";
+            }
+            return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
-
-
-        const elections =
-            await response.json();
-
-
-        if (
-            !elections ||
-            elections.length === 0
-        ) {
-
-            showMessage(
-                "No election has been created yet."
-            );
-
-            return;
-
-        }
-
-
-        const now =
-            new Date();
-
-
-        /*
-         * Find an ACTIVE election.
-         */
-
-        currentElection =
-            elections.find(
-                election => {
-
-                    if (
-                        !election.startTime ||
-                        !election.endTime
-                    ) {
-
-                        return false;
-
-                    }
-
-                    const start =
-                        new Date(
-                            election.startTime
-                        );
-
-                    const end =
-                        new Date(
-                            election.endTime
-                        );
-
-                    return (
-                        now >= start &&
-                        now <= end
-                    );
-
+        /* =========================================
+           START
+        ========================================= */
+        loadVoter();
+        /* =========================================
+           LOAD VOTER
+        ========================================= */
+        async function loadVoter() {
+            try {
+                const response = await fetch(API + "/voters/by-email?email=" + encodeURIComponent(userEmail));
+                if (!response.ok) {
+                    throw new Error("Unable to load voter.");
                 }
-            );
-
-
-        if (!currentElection) {
-
-            const upcoming =
-                elections.find(
-                    election => {
-
-                        if (
-                            !election.startTime
-                        ) {
-
-                            return false;
-
-                        }
-
-                        return (
-                            now <
-                            new Date(
-                                election.startTime
-                            )
-                        );
-
+                currentVoter = await response.json();
+                if (!currentVoter) {
+                    throw new Error("Voter record not found.");
+                }
+                await loadElections();
+            } catch (error) {
+                console.error(error);
+                showMessage("Unable to load your voter details. " + "Please contact the administrator.");
+            }
+        }
+        /* =========================================
+        
+           LOAD ELECTIONS
+        
+        ========================================= */
+        async function loadElections() {
+            try {
+                const response = await fetch(API + "/elections");
+                if (!response.ok) {
+                    throw new Error("Unable to load elections.");
+                }
+                const elections = await response.json();
+                if (!elections || elections.length === 0) {
+                    showMessage("No election has been created yet.");
+                    return;
+                }
+                const now = new Date();
+                // Prefer an explicit server decision when the API provides one.
+                // A timestamp without a timezone is interpreted as local time;
+                // the API should return an offset or Z for reliable results.
+                currentElection = elections.find(election => {
+                    if (typeof election.canVote === "boolean") {
+                        return election.canVote;
                     }
-                );
-
-
-            if (upcoming) {
-
-                showElectionInfo(
-                    upcoming,
-                    "UPCOMING"
-                );
-
-            }
-
-            else {
-
-                const latest =
-                    elections[
-                        elections.length - 1
-                    ];
-
-                showElectionInfo(
-                    latest,
-                    "COMPLETED"
-                );
-
-            }
-
-
-            disableSubmit();
-
-            document.getElementById(
-                "votingArea"
-            ).innerHTML = `
+                    if (typeof election.status === "string") {
+                        return election.status.trim().toUpperCase() === "ACTIVE";
+                    }
+                    const start = parseElectionDate(election.startTime);
+                    const end = parseElectionDate(election.endTime);
+                    return start && end && now >= start && now <= end;
+                });
+                if (!currentElection) {
+                    const upcoming = elections.find(election => {
+                        if (!election.startTime) {
+                            return false;
+                        }
+                        const start = parseElectionDate(election.startTime);
+                        return start && now < start;
+                    });
+                    if (upcoming) {
+                        showElectionInfo(upcoming, "UPCOMING");
+                    } else {
+                        const latest = elections[elections.length - 1];
+                        showElectionInfo(latest, "COMPLETED");
+                    }
+                    disableSubmit();
+                    document.getElementById("votingArea").innerHTML = `
 
                 <div class="message">
-
                     <h3>
                         Voting is not available
                     </h3>
-
                     <p>
                         There is currently no active election.
                     </p>
-
                 </div>
-
             `;
-
-            return;
-
+                    return;
+                }
+                showElectionInfo(currentElection, "ACTIVE");
+                loadPositions();
+            } catch (error) {
+                console.error(error);
+                showMessage("Unable to load elections.");
+            }
         }
-
-
-        showElectionInfo(
-            currentElection,
-            "ACTIVE"
-        );
-
-
-        loadPositions();
-
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        showMessage(
-            "Unable to load elections."
-        );
-
-    }
-
-}
-
-
-
-/* =========================================
-   SHOW ELECTION INFORMATION
-========================================= */
-
-function showElectionInfo(
-    election,
-    status
-) {
-
-    let statusClass =
-        "status-active";
-
-
-    if (status === "UPCOMING") {
-
-        statusClass =
-            "status-upcoming";
-
-    }
-
-
-    if (status === "COMPLETED") {
-
-        statusClass =
-            "status-ended";
-
-    }
-
-
-    document.getElementById(
-        "electionInfo"
-    ).innerHTML = `
-
+        /* =========================================
+        
+           SHOW ELECTION INFORMATION
+        
+        ========================================= */
+        function showElectionInfo(election, status) {
+            let statusClass = "status-active";
+            if (status === "UPCOMING") {
+                statusClass = "status-upcoming";
+            }
+            if (status === "COMPLETED") {
+                statusClass = "status-ended";
+            }
+            document.getElementById("electionInfo").innerHTML = `
         <h3>
             ${escapeHTML(election.name)}
         </h3>
-
         <div class="info-row">
-
             <strong>
                 Status:
             </strong>
-
             <span class="${statusClass}">
                 ${status}
             </span>
-
         </div>
 
         <div class="info-row">
-
             <strong>
                 Description:
             </strong>
@@ -787,259 +529,109 @@ function showElectionInfo(
                 election.description ||
                 "No description available."
             )}
-
         </div>
-
         <div class="info-row">
-
             <strong>
                 Start:
             </strong>
-
             ${formatDate(
                 election.startTime
             )}
-
         </div>
 
         <div class="info-row">
-
             <strong>
                 End:
             </strong>
-
             ${formatDate(
                 election.endTime
             )}
-
         </div>
-
     `;
-
-}
-
-
-
-/* =========================================
-   LOAD POSITIONS
-========================================= */
-
-async function loadPositions() {
-
-    try {
-
-        const response =
-            await fetch(
-                API +
-                "/positions/election/" +
-                currentElection.id
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load positions."
-            );
-
         }
-
-
-        currentPositions =
-            await response.json();
-
-
-        if (
-            !currentPositions ||
-            currentPositions.length === 0
-        ) {
-
-            showMessage(
-                "No positions have been added to this election yet."
-            );
-
-            disableSubmit();
-
-            return;
-
-        }
-
-
-        await loadCandidates();
-
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        showMessage(
-            "Unable to load election positions."
-        );
-
-    }
-
-}
-
-
-
-/* =========================================
-   LOAD CANDIDATES
-========================================= */
-
-async function loadCandidates() {
-
-    try {
-
-        currentCandidates = [];
-
-
-        for (
-            const position
-            of currentPositions
-        ) {
-
-            const response =
-                await fetch(
-                    API +
-                    "/candidates/position/" +
-                    position.id
-                );
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Unable to load candidates."
-                );
-
-            }
-
-
-            const candidates =
-                await response.json();
-
-
-            candidates.forEach(
-                candidate => {
-
-                    currentCandidates.push(
-                        candidate
-                    );
-
+        /* =========================================
+        
+           LOAD POSITIONS
+        
+        ========================================= */
+        async function loadPositions() {
+            try {
+                const response = await fetch(API + "/positions/election/" + currentElection.id);
+                if (!response.ok) {
+                    throw new Error("Unable to load positions.");
                 }
-            );
-
+                currentPositions = await response.json();
+                if (!currentPositions || currentPositions.length === 0) {
+                    showMessage("No positions have been added to this election yet.");
+                    disableSubmit();
+                    return;
+                }
+                await loadCandidates();
+            } catch (error) {
+                console.error(error);
+                showMessage("Unable to load election positions.");
+            }
         }
-
-
-        displayCandidates();
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        showMessage(
-            "Unable to load candidates."
-        );
-
-    }
-
-}
-
-
-
-/* =========================================
-   DISPLAY CANDIDATES
-========================================= */
-
-function displayCandidates() {
-
-    const votingArea =
-        document.getElementById(
-            "votingArea"
-        );
-
-
-    let html = "";
-
-
-    currentPositions.forEach(
-        position => {
-
-            const positionCandidates =
-                currentCandidates.filter(
-                    candidate =>
-                        Number(
-                            candidate.positionId
-                        ) ===
-                        Number(
-                            position.id
-                        )
-                );
-
-
-            html += `
-
+        /* =========================================
+        
+           LOAD CANDIDATES
+        
+        ========================================= */
+        async function loadCandidates() {
+            try {
+                currentCandidates = [];
+                for (const position of currentPositions) {
+                    const response = await fetch(API + "/candidates/position/" + position.id);
+                    if (!response.ok) {
+                        throw new Error("Unable to load candidates.");
+                    }
+                    const candidates = await response.json();
+                    candidates.forEach(candidate => {
+                        currentCandidates.push(candidate);
+                    });
+                }
+                displayCandidates();
+            } catch (error) {
+                console.error(error);
+                showMessage("Unable to load candidates.");
+            }
+        }
+        /* =========================================
+        
+           DISPLAY CANDIDATES
+        
+        ========================================= */
+        function displayCandidates() {
+            const votingArea = document.getElementById("votingArea");
+            let html = "";
+            currentPositions.forEach(position => {
+                const positionCandidates = currentCandidates.filter(candidate => Number(candidate.positionId) === Number(position.id));
+                html += `
                 <div class="position-section">
-
                     <h3 class="position-title">
-
                         ${escapeHTML(
-                            position.name
-                        )}
-
+                    position.name
+                )}
                     </h3>
-
                     <p class="instruction">
-
                         Select one candidate
                         for this position.
-
                     </p>
-
             `;
-
-
-            if (
-                positionCandidates.length === 0
-            ) {
-
-                html += `
-
+                if (positionCandidates.length === 0) {
+                    html += `
                     <div class="message">
-
                         No candidates are available
                         for this position.
-
                     </div>
-
                 `;
-
-            }
-
-            else {
-
-                html += `
-
+                } else {
+                    html += `
                     <div class="candidate-list">
-
                 `;
-
-
-                positionCandidates.forEach(
-                    candidate => {
-
-                        const radioId =
-                            "candidate_" +
-                            candidate.id;
-
-
+                    positionCandidates.forEach(candidate => {
+                        const radioId = "candidate_" + candidate.id;
                         html += `
-
                             <div
                                 class="candidate-card"
                                 id="card_${candidate.id}"
@@ -1048,54 +640,31 @@ function displayCandidates() {
                                         ${candidate.id},
                                         ${position.id}
                                     )
-                                "
-                            >
-
+                                ">
                                 <div class="candidate-radio">
-
                                     <input
-
                                         type="radio"
-
                                         id="${radioId}"
-
                                         name="position_${position.id}"
-
                                         value="${candidate.id}"
-
                                         data-position-id="${position.id}"
-
                                         data-candidate-id="${candidate.id}"
-
                                         data-candidate-name="${escapeHTML(
-                                            candidate.name
-                                        )}"
-
+                            candidate.name
+                        )}"
                                         onclick="event.stopPropagation()"
-
                                         onchange="
                                             highlightCandidate(
                                                 this
                                             )
                                         "
-
                                     >
-
                                 </div>
-
-
-                                ${
-                                    candidate.photo
-                                    ?
-                                    `<img
-                                        src="${escapeHTML(
-                                            candidate.photo
-                                        )}"
-                                        class="candidate-photo"
-                                        alt="Candidate Photo"
-                                    >`
-                                    :
-                                    `<div
+                                ${candidate.photo
+                                ?
+                                `<img src="${escapeHTML(getCandidatePhotoUrl(candidate.photo))}" class="candidate-photo" alt="Candidate Photo">`
+                                :
+                                `<div
                                         class="candidate-photo"
                                         style="
                                             display:flex;
@@ -1106,392 +675,172 @@ function displayCandidates() {
                                     >
                                         No Photo
                                     </div>`
-                                }
-
-
+                            }
                                 <div class="candidate-name">
-
                                     ${escapeHTML(
-                                        candidate.name
-                                    )}
-
+                                candidate.name
+                            )}
                                 </div>
-
-
                                 <div class="candidate-email">
-
                                     ${escapeHTML(
-                                        candidate.email ||
-                                        ""
-                                    )}
-
+                                candidate.email ||
+                                ""
+                            )}
                                 </div>
-
-
                                 <div class="candidate-bio">
-
                                     ${escapeHTML(
-                                        candidate.biography ||
-                                        "No biography provided."
-                                    )}
-
+                                candidate.biography ||
+                                "No biography provided."
+                            )}
                                 </div>
-
                             </div>
-
                         `;
-
-                    }
-                );
-
-
-                html += `
+                    });
+                    html += `
                     </div>
                 `;
-
-            }
-
-
-            html += `
+                }
+                html += `
                 </div>
             `;
-
+            });
+            votingArea.innerHTML = html;
         }
-    );
-
-
-    votingArea.innerHTML =
-        html;
-
-}
-
-
-
-/* =========================================
-   SELECT CANDIDATE
-========================================= */
-
-function selectCandidate(
-    candidateId,
-    positionId
-) {
-
-    const radio =
-        document.querySelector(
-            `input[data-position-id="${positionId}"][data-candidate-id="${candidateId}"]`
-        );
-
-
-    if (!radio) {
-
-        return;
-
-    }
-
-
-    radio.checked = true;
-
-    highlightCandidate(
-        radio
-    );
-
-}
-
-
-
-/* =========================================
-   HIGHLIGHT SELECTED
-========================================= */
-
-function highlightCandidate(
-    input
-) {
-
-    const positionId =
-        input.dataset.positionId;
-
-
-    const radios =
-        document.querySelectorAll(
-            `input[data-position-id="${positionId}"]`
-        );
-
-
-    radios.forEach(
-        radio => {
-
-            const card =
-                document.getElementById(
-                    "card_" +
-                    radio.dataset.candidateId
-                );
-
-
-            if (!card) {
-
+        /* =========================================
+        
+           SELECT CANDIDATE
+        
+        ========================================= */
+        function selectCandidate(candidateId, positionId) {
+            const radio = document.querySelector(`input[data-position-id="${positionId}"][data-candidate-id="${candidateId}"]`);
+            if (!radio) {
                 return;
-
             }
-
-
-            if (radio.checked) {
-
-                card.classList.add(
-                    "selected"
-                );
-
-            }
-
-            else {
-
-                card.classList.remove(
-                    "selected"
-                );
-
-            }
-
+            radio.checked = true;
+            highlightCandidate(radio);
         }
-    );
-
-}
-
-
-
-/* =========================================
-   SUBMIT VOTE
-========================================= */
-
-async function submitVote() {
-
-    if (!currentVoter) {
-
-        alert(
-            "Voter information is not loaded yet."
-        );
-
-        return;
-
-    }
-
-
-    if (!currentElection) {
-
-        alert(
-            "There is no active election."
-        );
-
-        return;
-
-    }
-
-
-    const selected =
-        Array.from(
-            document.querySelectorAll(
-                'input[type="radio"]:checked'
-            )
-        );
-
-
-    if (selected.length === 0) {
-
-        alert(
-            "Please select at least one candidate."
-        );
-
-        return;
-
-    }
-
-
-    /*
-     * Make sure only one candidate
-     * is selected for each position.
-     */
-
-    const selectedPositions =
-        new Set();
-
-
-    for (
-        const input
-        of selected
-    ) {
-
-        const positionId =
-            input.dataset.positionId;
-
-
-        if (
-            selectedPositions.has(
-                positionId
-            )
-        ) {
-
-            alert(
-                "Please select only one candidate for each position."
-            );
-
-            return;
-
+        /* =========================================
+        
+           HIGHLIGHT SELECTED
+        
+        ========================================= */
+        function highlightCandidate(input) {
+            const positionId = input.dataset.positionId;
+            const radios = document.querySelectorAll(`input[data-position-id="${positionId}"]`);
+            radios.forEach(radio => {
+                const card = document.getElementById("card_" + radio.dataset.candidateId);
+                if (!card) {
+                    return;
+                }
+                if (radio.checked) {
+                    card.classList.add("selected");
+                } else {
+                    card.classList.remove("selected");
+                }
+            });
         }
-
-
-        selectedPositions.add(
-            positionId
-        );
-
-    }
-
-
-    const confirmation =
-        confirm(
-            "Are you sure you want to submit your vote? " +
-            "Once submitted, it cannot be changed."
-        );
-
-
-    if (!confirmation) {
-
-        return;
-
-    }
-
-
-    const submitButton =
-        document.getElementById(
-            "submitBtn"
-        );
-
-
-    submitButton.disabled =
-        true;
-
-
-    submitButton.classList.add(
-        "disabled"
-    );
-
-
-    try {
-
-        /*
-         * Submit each selected position
-         * as a separate Vote record.
-         */
-
-        for (
-            const input
-            of selected
-        ) {
-
-            const vote = {
-
-                voterId:
-                    currentVoter.id,
-
-                electionId:
-                    currentElection.id,
-
-                positionId:
-                    Number(
-                        input.dataset.positionId
-                    ),
-
-                candidateId:
-                    Number(
-                        input.dataset.candidateId
-                    )
-
-            };
-
-
-            const response =
-                await fetch(
-                    API + "/votes",
-                    {
-
+        /* =========================================
+        
+           SUBMIT VOTE
+        
+        ========================================= */
+        async function submitVote() {
+            if (!currentVoter) {
+                alert("Voter information is not loaded yet.");
+                return;
+            }
+            if (!currentElection) {
+                alert("There is no active election.");
+                return;
+            }
+            const selected = Array.from(document.querySelectorAll('input[type="radio"]:checked'));
+            if (selected.length !== currentPositions.length) {
+                alert("Please select one candidate for every position.");
+                return;
+            }
+            /*
+            
+                 * Make sure only one candidate
+            
+                 * is selected for each position.
+            
+                 */
+            const selectedPositions = new Set();
+            for (const input of selected) {
+                const positionId = input.dataset.positionId;
+                if (selectedPositions.has(positionId)) {
+                    alert("Please select only one candidate for each position.");
+                    return;
+                }
+                selectedPositions.add(positionId);
+            }
+            // The server must also check this at submission time.
+            if (currentElection.canVote === false || (typeof currentElection.canVote !== "boolean" && typeof currentElection.status === "string" && currentElection.status.trim().toUpperCase() !== "ACTIVE") || (typeof currentElection.canVote !== "boolean" && typeof currentElection.status !== "string" && (!parseElectionDate(currentElection.startTime) || !parseElectionDate(currentElection.endTime) || new Date() < parseElectionDate(currentElection.startTime) || new Date() > parseElectionDate(currentElection.endTime)))) {
+                alert("Voting is no longer open. Please refresh the page.");
+                return;
+            }
+            const confirmation = confirm("Are you sure you want to submit your vote? " + "Once submitted, it cannot be changed.");
+            if (!confirmation) {
+                return;
+            }
+            const submitButton = document.getElementById("submitBtn");
+            submitButton.disabled = true;
+            submitButton.classList.add("disabled");
+            let submittedCount = 0;
+            try {
+                /*
+            
+                     * Submit each selected position
+            
+                     * as a separate Vote record.
+            
+                     */
+                for (const input of selected) {
+                    const vote = {
+                        voterId: currentVoter.id,
+                        electionId: currentElection.id,
+                        positionId: Number(input.dataset.positionId),
+                        candidateId: Number(input.dataset.candidateId)
+                    };
+                    const response = await fetch(API + "/votes", {
                         method: "POST",
-
                         headers: {
-                            "Content-Type":
-                                "application/json"
+                            "Content-Type": "application/json"
                         },
-
-                        body:
-                            JSON.stringify(
-                                vote
-                            )
-
+                        body: JSON.stringify(vote)
+                    });
+                    const result = await response.text();
+                    if (!response.ok) {
+                        let message = result || "The server rejected the vote.";
+                        try {
+                            const data = JSON.parse(result);
+                            message = data.message || data.error || message;
+                        } catch (_) {
+                            /* Response was plain text. */
+                        }
+                        throw new Error(message);
                     }
-                );
-
-
-            const result =
-                await response.text();
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    result
-                );
-
+                    submittedCount++;
+                }
+                alert("Your vote has been submitted successfully!");
+                window.location.href = "dashboard.html";
+            } catch (error) {
+                console.error("Vote submission error:", error);
+                alert("Vote could not be submitted.\n\n" + error.message);
+                // Retrying the full ballot after partial success can create duplicates.
+                if (submittedCount === 0) {
+                    submitButton.disabled = false;
+                    submitButton.classList.remove("disabled");
+                }
             }
-
         }
-
-
-        alert(
-            "Your vote has been submitted successfully!"
-        );
-
-
-        window.location.href =
-            "dashboard.html";
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Vote submission error:",
-            error
-        );
-
-
-        alert(
-            "Vote could not be submitted.\n\n" +
-            error.message
-        );
-
-
-        submitButton.disabled =
-            false;
-
-
-        submitButton.classList.remove(
-            "disabled"
-        );
-
-    }
-
-}
-
-
-
-/* =========================================
-   MESSAGE
-========================================= */
-
-function showMessage(
-    message
-) {
-
-    document.getElementById(
-        "votingArea"
-    ).innerHTML = `
+        /* =========================================
+        
+           MESSAGE
+        
+        ========================================= */
+        function showMessage(message) {
+            document.getElementById("votingArea").innerHTML = `
 
         <div class="message">
 
@@ -1500,112 +849,79 @@ function showMessage(
         </div>
 
     `;
-
-}
-
-
-
-/* =========================================
-   DISABLE SUBMIT
-========================================= */
-
-function disableSubmit() {
-
-    const button =
-        document.getElementById(
-            "submitBtn"
-        );
-
-
-    button.disabled =
-        true;
-
-
-    button.classList.add(
-        "disabled"
-    );
-
-}
-
-
-
-/* =========================================
-   FORMAT DATE
-========================================= */
-
-function formatDate(
-    value
-) {
-
-    if (!value) {
-
-        return "Not specified";
-
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return escapeHTML(
-            value
-        );
-
-    }
-
-
-    return date.toLocaleString(
-        "en-IN",
-        {
-            dateStyle: "medium",
-            timeStyle: "short"
         }
-    );
+        /* =========================================
+        
+           DISABLE SUBMIT
+        
+        ========================================= */
+        function disableSubmit() {
+            const button = document.getElementById("submitBtn");
+            button.disabled = true;
+            button.classList.add("disabled");
+        }
+        // Do not append Z to an unzoned value: it may represent local time.
+        function parseElectionDate(value) {
+            if (!value) return null;
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? null : date;
+        }
+        /* =========================================
+        
+           FORMAT DATE
+        
+        ========================================= */
+        function formatDate(value) {
+            if (!value) {
+                return "Not specified";
+            }
+            const date = parseElectionDate(value);
+            if (!date) {
+                return escapeHTML(value);
+            }
+            return date.toLocaleString("en-IN", {
+                dateStyle: "medium",
+                timeStyle: "short"
+            });
+        }
 
-}
+        
+        function getCandidatePhotoUrl(photo) {
+            if (!photo) return "";
 
+            const value = photo.trim();
+            const serverUrl = API.replace(/\/api\/?$/, "");
 
+            if (/^https?:\/\//i.test(value)) {
+                return value;
+            }
 
-/* =========================================
-   BACK
-========================================= */
+            if (value.startsWith("/uploads/")) {
+                return serverUrl + value;
+            }
 
-function goBack() {
+            return serverUrl + "/uploads/" + encodeURIComponent(value);
+        }
 
-    window.location.href =
-        "dashboard.html";
-
-}
-
-
-
-/* =========================================
-   LOGOUT
-========================================= */
-
-function logout() {
-
-    localStorage.removeItem(
-        "userEmail"
-    );
-
-    localStorage.removeItem(
-        "userRole"
-    );
-
-    window.location.href =
-        "index.html";
-
-}
-
-</script>
-
+        /* =========================================
+        
+           BACK
+        
+        ========================================= */
+        function goBack() {
+            window.location.href = "dashboard.html";
+        }
+        /* =========================================
+        
+           LOGOUT
+        
+        ========================================= */
+        function logout() {
+            localStorage.removeItem("userEmail");
+            localStorage.removeItem("userRole");
+            window.location.href = "index.html";
+        } 
+    </script>
 </body>
+
 </html>
