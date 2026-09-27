@@ -805,24 +805,21 @@
 
             let registeredVoters = 0;
 
-
             try {
+                const response = await fetch(`${API}/voters`);
 
-                const storedVoters =
-                    JSON.parse(
-                        localStorage.getItem("voters")
-                    ) || [];
+                if (!response.ok) {
+                    throw new Error("Unable to load voters.");
+                }
 
-
-                registeredVoters =
-                    storedVoters.length;
-
-            }
-
-            catch (error) {
-
-                registeredVoters = 0;
-
+                const voters = await response.json();
+                registeredVoters = Array.isArray(voters)
+                    ? voters.filter(voter =>
+                        String(voter.role || "").trim().toUpperCase() === "VOTER"
+                    ).length
+                    : 0;
+            } catch (error) {
+                console.error("Voter loading error:", error);
             }
 
 
